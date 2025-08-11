@@ -10,7 +10,7 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final _shellNavigatorKeyHome = GlobalKey<NavigatorState>(debugLabel: 'home');
 final _shellNavigatorKeyStats = GlobalKey<NavigatorState>(debugLabel: 'stats');
 final _shellNavigatorKeyCalendar =
-    GlobalKey<NavigatorState>(debugLabel: 'calendar');
+    GlobalKey<NavigatorState>(debugLabel: 'calendar_journal');
 final _shellNavigatorKeySettings = GlobalKey<NavigatorState>(
   debugLabel: 'settings',
 );
@@ -74,7 +74,7 @@ final router = GoRouter(
               path: Routes.calendar.path,
               name: Routes.calendar.name,
               pageBuilder: (context, state) {
-                return const CalendarPage().pageTransition(state: state);
+                return const CalendarJournalPage().pageTransition(state: state);
               },
             ),
           ],

@@ -4,12 +4,19 @@ import 'package:micro_journal/src/features/features.dart';
 import 'package:solar_icons/solar_icons.dart';
 
 class PostWidget extends StatelessWidget {
-  const PostWidget({super.key});
+  final JournalModel journal;
+  final VoidCallback? onLike;
+  final VoidCallback? onComment;
+
+  const PostWidget({
+    super.key,
+    required this.journal,
+    this.onLike,
+    this.onComment,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final List<String> tags = ['#achievement', '#fitness', '#motivation'];
-
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -18,85 +25,174 @@ class PostWidget extends StatelessWidget {
       ),
       child: Column(
         children: [
+          // Post Header
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const CircleAvatar(
+              CircleAvatar(
                 radius: 20,
-                backgroundImage: NetworkImage(
-                  'https://images.pexels.com/photos/1321942/pexels-photo-1321942.jpeg',
-                ),
+                backgroundImage: NetworkImage(journal.user.avatarUrl),
               ),
               const SizedBox(width: 15),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Someone ',
-                          style:
-                              Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 17,
-                                  ),
-                        ),
-                        TextSpan(
-                          text: 'ㆍ',
-                          style:
-                              Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 17,
-                                  ),
-                        ),
-                        TextSpan(
-                          text: '2h ago',
-                          style:
-                              Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 15,
-                                  ),
-                        ),
-                      ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: '${journal.user.username} ',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 17,
+                                ),
+                          ),
+                          TextSpan(
+                            text: 'ㆍ',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 17,
+                                ),
+                          ),
+                          TextSpan(
+                            text: journal.timeAgo,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 15,
+                                ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  Text(
-                    'Amazing',
-                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                        ),
-                  ),
-                ],
+                    Container(
+                      margin: const EdgeInsets.only(top: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 2,),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            journal.moodEmoji,
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            journal.mood.substring(0, 1).toUpperCase() +
+                                journal.mood.substring(1),
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineLarge
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 11,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
+
           const SizedBox(height: 15),
-          const Text(
-            'Finally completed my first 5K run today! The feeling of accomplishment is incredible. Small steps really do lead to big achievements. 🏃‍♀️',
-            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            height: 25,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: tags.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: TagContainer(text: tags[index]),
-                );
-              },
+
+          // Post Content
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              journal.thoughts,
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
             ),
           ),
+
+          // Today's Intention (if available)
+          if (journal.intention != null && journal.intention!.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.grey[200]!),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.star_outline,
+                        size: 16,
+                        color: Colors.grey[600],
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        "Today's intention:",
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    journal.intention!,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontStyle: FontStyle.italic,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+
+          const SizedBox(height: 12),
+
+          // Tags List
+          if (journal.hashTags.isNotEmpty)
+            SizedBox(
+              height: 25,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: journal.hashTags.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: TagContainer(text: journal.hashTags[index]),
+                  );
+                },
+              ),
+            ),
+
           const SizedBox(height: 10),
+
+          // Like and Comment Stats
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               GestureDetector(
-                onTap: () => logman.info('like'),
+                onTap: onLike,
                 child: Row(
                   children: [
                     const Icon(
@@ -106,7 +202,7 @@ class PostWidget extends StatelessWidget {
                     ),
                     const SizedBox(width: 3),
                     Text(
-                      '2',
+                      journal.likesCount.toString(),
                       style: Theme.of(context)
                           .textTheme
                           .titleLarge
@@ -115,16 +211,26 @@ class PostWidget extends StatelessWidget {
                   ],
                 ),
               ),
-              const Text('3 comments'),
+              Text(
+                '${journal.commentsCount} ${journal.commentsCount == 1 ? 'comment' : 'comments'}',
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: Colors.grey[600]),
+              ),
             ],
           ),
+
           const Divider(height: 20, thickness: 0.6),
+
+          // Action Buttons
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               const LikeRowWidget(),
               GestureDetector(
-                onTap: () => openCommentsModal(context: context),
+                onTap: () =>
+                    openCommentsModal(context: context, journal: journal),
                 child: const CommentRowWidget(),
               ),
             ],
@@ -136,12 +242,14 @@ class PostWidget extends StatelessWidget {
 
   void openCommentsModal({
     required BuildContext context,
+    required JournalModel journal,
     List<CommentModel>? comments,
   }) {
     final List<CommentModel> sampleComments = comments ??
         [
           CommentModel(
             user: UserModel(
+              id: '8',
               username: 'john_doe',
               avatarUrl:
                   'https://images.pexels.com/photos/1321942/pexels-photo-1321942.jpeg',
@@ -152,6 +260,7 @@ class PostWidget extends StatelessWidget {
             replies: [
               CommentModel(
                 user: UserModel(
+                  id: '6',
                   username: 'jane_doe',
                   avatarUrl:
                       'https://images.pexels.com/photos/1321942/pexels-photo-1321942.jpeg',
@@ -164,6 +273,7 @@ class PostWidget extends StatelessWidget {
           ),
           CommentModel(
             user: UserModel(
+              id: '2',
               username: 'alex_92',
               avatarUrl:
                   'https://images.pexels.com/photos/1321942/pexels-photo-1321942.jpeg',
@@ -174,11 +284,12 @@ class PostWidget extends StatelessWidget {
           ),
           CommentModel(
             user: UserModel(
+              id: '3',
               username: 'fitness_guru',
               avatarUrl:
                   'https://images.pexels.com/photos/1321942/pexels-photo-1321942.jpeg',
             ),
-            text: "Congratulations on your 5K! That's a huge milestone 🏃‍♀️",
+            text: "Congratulations! That's a huge milestone 🏃‍♀️",
             likes: 15,
             timestamp: DateTime.now().subtract(const Duration(minutes: 15)),
           ),
@@ -188,10 +299,11 @@ class PostWidget extends StatelessWidget {
       context: context,
       comments: sampleComments,
       onAddComment: (comment) {
-        logman.info('New comment: $comment');
+        logman.info('New comment on journal ${journal.id}: $comment');
       },
       onLikeComment: (comment) {
-        logman.info('Liked comment by: ${comment.user.username}');
+        logman.info(
+            'Liked comment by: ${comment.user.username} on journal ${journal.id}',);
       },
     );
   }
