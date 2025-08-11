@@ -141,7 +141,7 @@ class _CustomFormTextFieldState<T> extends State<CustomFormTextField<T>> {
     if (widget.onTap != null) {
       return GestureDetector(
         onTap: () async {
-          /// If the widgets is busy, we don't want to do anything.
+          /// If the pages is busy, we don't want to do anything.
           if (widget.busy) return;
 
           FocusScope.of(context).unfocus();
@@ -290,7 +290,7 @@ class _CustomFormTextFieldState<T> extends State<CustomFormTextField<T>> {
             hintStyle: context.textTheme.bodyMedium?.copyWith(
               color: Colors.grey.shade500,
             ),
-            //labelText: widgets._noLabel ? null : widgets.hintText ?? widgets.name,
+            //labelText: pages._noLabel ? null : pages.hintText ?? pages.name,
             // labelStyle: size15weight500.copyWith(
             //   color: labelColor,
             //   height: labelHeight,

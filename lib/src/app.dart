@@ -10,7 +10,7 @@ class App extends StatelessWidget {
       routerConfig: router,
       // routerDelegate: router.routerDelegate,
       title: 'Pronto',
-      theme: darkTheme,
+      theme: lightTheme,
     );
   }
 }
