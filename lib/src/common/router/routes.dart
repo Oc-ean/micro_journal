@@ -7,6 +7,7 @@ enum Routes {
   stats('Stats', '/stats'),
   calendar('Calendar', '/calendar'),
   settings('Settings', '/settings'),
+  login('Login', '/login'),
   create('Create', '/create');
 
   final String name;

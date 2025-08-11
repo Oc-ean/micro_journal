@@ -5,9 +5,9 @@ class OnboardingData {
   final String buttonText;
 
   const OnboardingData({
-  required this.emoji,
-  required this.title,
-  required this.subtitle,
-  required this.buttonText,
+    required this.emoji,
+    required this.title,
+    required this.subtitle,
+    required this.buttonText,
   });
 }

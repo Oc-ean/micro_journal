@@ -78,7 +78,7 @@ class _OnboardingPageState extends State<OnboardingPage>
         curve: Curves.easeInOut,
       );
     } else {
-      context.goNamed(Routes.home.name); // Or Routes.login.name
+      context.push(Routes.login.path);
     }
   }
 
@@ -124,7 +124,10 @@ class _OnboardingPageState extends State<OnboardingPage>
                   ),
                   Flexible(
                     child: CustomButton(
-                        height: 45, text: data.buttonText, onTap: _nextPage,),
+                      height: 45,
+                      text: data.buttonText,
+                      onTap: _nextPage,
+                    ),
                   ),
                 ],
               ),

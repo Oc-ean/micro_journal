@@ -1,7 +1,7 @@
 import 'package:micro_journal/src/common/common.dart';
 
 class CommentModel {
-  final String id; // Add unique identifier
+  final String id;
   final UserModel user;
   final String text;
   int likes;
