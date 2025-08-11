@@ -77,7 +77,9 @@ class PostWidget extends StatelessWidget {
                     Container(
                       margin: const EdgeInsets.only(top: 4),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 2,),
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: Theme.of(context).primaryColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
@@ -303,7 +305,8 @@ class PostWidget extends StatelessWidget {
       },
       onLikeComment: (comment) {
         logman.info(
-            'Liked comment by: ${comment.user.username} on journal ${journal.id}',);
+          'Liked comment by: ${comment.user.username} on journal ${journal.id}',
+        );
       },
     );
   }
