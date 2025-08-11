@@ -55,7 +55,7 @@ class _LoginPageState extends State<LoginPage>
               ),
               text: 'Login With Google',
               onTap: () => context.push(Routes.home.path),
-            )
+            ),
           ],
         ),
       ),

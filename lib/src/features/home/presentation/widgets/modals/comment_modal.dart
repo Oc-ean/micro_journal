@@ -84,9 +84,9 @@ class _CommentsModalSheetState extends State<CommentsModalSheet> {
     final commentText = commentControl.value?.trim() ?? '';
     if (commentText.isNotEmpty) {
       final currentUser = UserModel(
-        username: "current_user",
+        username: 'current_user',
         avatarUrl:
-            "https://images.pexels.com/photos/1321942/pexels-photo-1321942.jpeg",
+            'https://images.pexels.com/photos/1321942/pexels-photo-1321942.jpeg',
       );
 
       if (_replyingTo != null) {
@@ -286,7 +286,7 @@ class _CommentsModalSheetState extends State<CommentsModalSheet> {
                         onTap: hasText ? _handleAddComment : null,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
+                              horizontal: 16, vertical: 8,),
                           child: Text(
                             'Post',
                             style: TextStyle(

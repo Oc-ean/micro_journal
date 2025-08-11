@@ -1,6 +1,6 @@
-import 'package:micro_journal/src/common/common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:micro_journal/src/common/common.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
 class CustomFormTextField<T> extends StatefulWidget {
