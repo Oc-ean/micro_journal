@@ -1,4 +1,3 @@
-
 class NavDestination {
   final String label;
   final String icon;

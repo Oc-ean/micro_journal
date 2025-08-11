@@ -286,7 +286,9 @@ class _CommentsModalSheetState extends State<CommentsModalSheet> {
                         onTap: hasText ? _handleAddComment : null,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8,),
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
                           child: Text(
                             'Post',
                             style: TextStyle(
