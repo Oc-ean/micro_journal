@@ -84,6 +84,7 @@ class _CommentsModalSheetState extends State<CommentsModalSheet> {
     final commentText = commentControl.value?.trim() ?? '';
     if (commentText.isNotEmpty) {
       final currentUser = UserModel(
+        id: 'sample',
         username: 'current_user',
         avatarUrl:
             'https://images.pexels.com/photos/1321942/pexels-photo-1321942.jpeg',

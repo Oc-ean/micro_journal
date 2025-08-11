@@ -5,7 +5,7 @@ enum Routes {
   home('Home', '/home'),
   onboarding('Onboarding', '/onboarding'),
   stats('Stats', '/stats'),
-  calendar('Calendar', '/calendar'),
+  calendar('Calendar', '/calendar_journal'),
   settings('Settings', '/settings'),
   login('Login', '/login'),
   create('Create', '/create');

@@ -97,7 +97,17 @@ class _HomePageState extends State<HomePage>
             ),
           ),
           const SizedBox(height: 20),
-          const PostWidget(),
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: sampleJournal.length,
+            itemBuilder: (context, index) {
+              final journal = sampleJournal[index];
+              return PostWidget(journal: journal);
+            },
+            separatorBuilder: (context, index) => const SizedBox(height: 10),
+          ),
+          const SizedBox(height: 20),
         ],
       ),
     );
