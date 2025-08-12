@@ -5,14 +5,12 @@ class JournalStats {
   final int currentStreak;
   final int totalWords;
   final List<Mood> moods;
-  final List<int> weeklyActivity;
 
   const JournalStats({
     required this.totalEntries,
     required this.currentStreak,
     required this.totalWords,
     required this.moods,
-    required this.weeklyActivity,
   });
 
   int get averageWordsPerEntry =>
@@ -34,7 +32,6 @@ class JournalStats {
           Mood(value: 'sad', emoji: '😢', count: 2),
           Mood(value: 'terrible', emoji: '😭', count: 1),
         ],
-        weeklyActivity: [2, 4, 1, 3, 5, 2, 3],
       );
 
   factory JournalStats.fromJson(Map<String, dynamic> json) {
@@ -45,8 +42,6 @@ class JournalStats {
       moods: (json['moods'] as List<dynamic>? ?? [])
           .map((e) => Mood.fromJson(e as Map<String, dynamic>))
           .toList(),
-      weeklyActivity:
-          List<int>.from(json['weeklyActivity'] as List<int>? ?? []),
     );
   }
 
@@ -56,7 +51,6 @@ class JournalStats {
       'currentStreak': currentStreak,
       'totalWords': totalWords,
       'moods': moods.map((m) => m.toJson()).toList(),
-      'weeklyActivity': weeklyActivity,
     };
   }
 }
