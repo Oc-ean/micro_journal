@@ -10,12 +10,11 @@ class OverviewTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Key Metrics Grid
           GridView.count(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -50,9 +49,7 @@ class OverviewTab extends StatelessWidget {
               ),
             ],
           ),
-
           const SizedBox(height: 24),
-
           Container(
             padding: const EdgeInsets.all(16),
             decoration: _boxDecoration(context),
@@ -82,9 +79,7 @@ class OverviewTab extends StatelessWidget {
               ],
             ),
           ),
-
           const SizedBox(height: 24),
-
           Container(
             padding: const EdgeInsets.all(16),
             decoration: _boxDecoration(context),
