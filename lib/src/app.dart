@@ -8,9 +8,8 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       routerConfig: router,
-      // routerDelegate: router.routerDelegate,
-      title: 'Pronto',
-      theme: lightTheme,
+      title: 'Miro Journal',
+      theme: darkTheme,
     );
   }
 }

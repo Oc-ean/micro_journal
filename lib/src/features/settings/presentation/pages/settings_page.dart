@@ -95,7 +95,12 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void _navigateToEditProfile() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Navigate to Edit Profile')),
+      SnackBar(
+        content: Text(
+          'Navigate to Edit Profile',
+          style: TextStyle(color: context.theme.textTheme.bodySmall!.color),
+        ),
+      ),
     );
   }
 

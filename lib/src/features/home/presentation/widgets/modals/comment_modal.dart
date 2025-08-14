@@ -85,52 +85,30 @@ class _CommentsModalSheetState extends State<CommentsModalSheet> {
     if (commentText.isNotEmpty) {
       final currentUser = UserModel(
         id: 'sample',
+        email: 'jg4t4@example.com',
         username: 'current_user',
         avatarUrl:
             'https://images.pexels.com/photos/1321942/pexels-photo-1321942.jpeg',
       );
 
-      if (_replyingTo != null) {
-        // Handle reply
-        final replyComment = CommentModel(
-          user: currentUser,
-          text: commentText,
-          timestamp: DateTime.now(),
-        );
+      final newComment = CommentModel(
+        id: UniqueKey().toString(),
+        journalId: 'sample_journal_id',
+        content: commentText,
+        user: currentUser,
+        isAnonymous: false,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        parentCommentId: _replyingTo?.id,
+        likes: [],
+      );
 
-        // Find the parent comment and add the reply
-        for (int i = 0; i < _comments.length; i++) {
-          if (_comments[i] == _replyingTo) {
-            setState(() {
-              _comments[i] = CommentModel(
-                user: _comments[i].user,
-                text: _comments[i].text,
-                likes: _comments[i].likes,
-                timestamp: _comments[i].timestamp,
-                isLiked: _comments[i].isLiked,
-                replies: [..._comments[i].replies, replyComment],
-              );
-            });
-            break;
-          }
-        }
-      } else {
-        // Handle new comment
-        final newComment = CommentModel(
-          user: currentUser,
-          text: commentText,
-          timestamp: DateTime.now(),
-        );
+      setState(() {
+        _comments.insert(0, newComment);
+      });
 
-        setState(() {
-          _comments.insert(0, newComment); // Add to beginning of list
-        });
-      }
-
-      // Call callback if provided
       widget.onAddComment?.call(commentText);
 
-      // Clear input and reset state
       commentControl.value = '';
       _replyingTo = null;
       _commentFocusNode.unfocus();
@@ -142,7 +120,7 @@ class _CommentsModalSheetState extends State<CommentsModalSheet> {
         formGroup.control(FormControlName.comment) as FormControl<String>;
     setState(() {
       _replyingTo = comment;
-      commentControl.value = '@${comment.user.username} ';
+      commentControl.value = '@${comment.user!.username} ';
       _commentFocusNode.requestFocus();
     });
   }
@@ -168,7 +146,6 @@ class _CommentsModalSheetState extends State<CommentsModalSheet> {
         ),
         child: Column(
           children: [
-            // Header with drag handle
             Container(
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Column(
@@ -192,10 +169,7 @@ class _CommentsModalSheetState extends State<CommentsModalSheet> {
                 ],
               ),
             ),
-
             const Divider(height: 1, thickness: 0.3),
-
-            // Comments List
             Expanded(
               child: ListView.builder(
                 padding:
@@ -206,7 +180,6 @@ class _CommentsModalSheetState extends State<CommentsModalSheet> {
                 },
               ),
             ),
-
             if (_replyingTo != null)
               Container(
                 padding:
@@ -215,7 +188,7 @@ class _CommentsModalSheetState extends State<CommentsModalSheet> {
                 child: Row(
                   children: [
                     Text(
-                      'Replying to @${_replyingTo!.user.username}',
+                      'Replying to @${_replyingTo!.user!.username}',
                       style: const TextStyle(
                         fontSize: 14,
                       ),
@@ -231,8 +204,6 @@ class _CommentsModalSheetState extends State<CommentsModalSheet> {
                   ],
                 ),
               ),
-
-            // Comment Input
             Container(
               padding: EdgeInsets.only(
                 left: 16,
@@ -263,7 +234,7 @@ class _CommentsModalSheetState extends State<CommentsModalSheet> {
                       name: FormControlName.comment,
                       focusNode: _commentFocusNode,
                       hintText: _replyingTo != null
-                          ? 'Reply to @${_replyingTo!.user.username}...'
+                          ? 'Reply to @${_replyingTo!.user!.username}...'
                           : 'Add a comment...',
                       borderRadius: 20,
                       filled: true,
@@ -314,6 +285,9 @@ class _CommentsModalSheetState extends State<CommentsModalSheet> {
   }
 
   Widget _buildCommentItem(CommentModel comment, {bool isReply = false}) {
+    const currentUserId = 'sample';
+    final isLiked = comment.likes.contains(currentUserId);
+
     return Padding(
       padding: EdgeInsets.only(
         left: isReply ? 44 : 0,
@@ -326,7 +300,7 @@ class _CommentsModalSheetState extends State<CommentsModalSheet> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CircleAvatar(
-                backgroundImage: NetworkImage(comment.user.avatarUrl),
+                backgroundImage: NetworkImage(comment.user?.avatarUrl ?? ''),
                 radius: isReply ? 14 : 16,
               ),
               const SizedBox(width: 12),
@@ -337,7 +311,9 @@ class _CommentsModalSheetState extends State<CommentsModalSheet> {
                     Row(
                       children: [
                         Text(
-                          comment.user.username,
+                          comment.isAnonymous
+                              ? 'Anonymous'
+                              : (comment.user?.username ?? 'Unknown'),
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
@@ -345,7 +321,7 @@ class _CommentsModalSheetState extends State<CommentsModalSheet> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          _getTimeAgo(comment.timestamp),
+                          _getTimeAgo(comment.createdAt),
                           style: TextStyle(
                             color: Colors.grey[600],
                             fontSize: 12,
@@ -355,15 +331,15 @@ class _CommentsModalSheetState extends State<CommentsModalSheet> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      comment.text,
+                      comment.content,
                       style: const TextStyle(fontSize: 14),
                     ),
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        if (comment.likes > 0) ...[
+                        if (comment.likes.isNotEmpty) ...[
                           Text(
-                            '${comment.likes} ${comment.likes == 1 ? 'like' : 'likes'}',
+                            '${comment.likes.length} ${comment.likes.length == 1 ? 'like' : 'likes'}',
                             style: TextStyle(
                               color: Colors.grey[600],
                               fontSize: 12,
@@ -395,39 +371,24 @@ class _CommentsModalSheetState extends State<CommentsModalSheet> {
                   GestureDetector(
                     onTap: () {
                       setState(() {
-                        comment.isLiked = !comment.isLiked;
-                        if (comment.isLiked) {
-                          comment.likes++;
+                        if (isLiked) {
+                          comment.likes.remove(currentUserId);
                         } else {
-                          comment.likes =
-                              comment.likes > 0 ? comment.likes - 1 : 0;
+                          comment.likes.add(currentUserId);
                         }
                       });
                       widget.onLikeComment?.call(comment);
                     },
                     child: Icon(
-                      comment.isLiked
-                          ? SolarIconsBold.heart
-                          : SolarIconsOutline.heart,
+                      isLiked ? SolarIconsBold.heart : SolarIconsOutline.heart,
                       size: 16,
-                      color: comment.isLiked ? Colors.red : Colors.grey[600],
+                      color: isLiked ? Colors.red : Colors.grey[600],
                     ),
                   ),
                 ],
               ),
             ],
           ),
-
-          // Replies
-          if (!isReply && comment.replies.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: Column(
-                children: comment.replies
-                    .map((reply) => _buildCommentItem(reply, isReply: true))
-                    .toList(),
-              ),
-            ),
         ],
       ),
     );

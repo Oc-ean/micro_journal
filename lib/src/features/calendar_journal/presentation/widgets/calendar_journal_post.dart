@@ -38,7 +38,7 @@ class CalendarJournalPost extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    journal.moodEmoji,
+                    journal.mood.value,
                     style: const TextStyle(fontSize: 24),
                   ),
                 ),

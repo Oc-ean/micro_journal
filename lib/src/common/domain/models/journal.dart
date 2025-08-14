@@ -3,43 +3,47 @@ import 'package:micro_journal/src/common/common.dart';
 class JournalModel {
   final String id;
   final DateTime date;
-  final String mood;
-  final String moodEmoji;
+  final Mood mood;
   final String thoughts;
   final String? intention;
   final List<String> tags;
   final DateTime createdAt;
+  final DateTime updatedAt;
+  final bool isAnonymous;
   final int likesCount;
   final int commentsCount;
-  final UserModel user;
+  final UserModel? user;
 
   JournalModel({
     required this.id,
     required this.date,
     required this.mood,
-    required this.moodEmoji,
     required this.thoughts,
     this.intention,
-    required this.tags,
+    this.tags = const [],
     DateTime? createdAt,
+    DateTime? updatedAt,
+    this.isAnonymous = false,
     this.likesCount = 0,
     this.commentsCount = 0,
-    required this.user,
-  }) : createdAt = createdAt ?? DateTime.now();
+    this.user,
+  })  : createdAt = createdAt ?? DateTime.now(),
+        updatedAt = updatedAt ?? DateTime.now();
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'date': date.toIso8601String(),
-      'mood': mood,
-      'moodEmoji': moodEmoji,
+      'mood': mood.toJson(),
       'thoughts': thoughts,
       'intention': intention,
       'tags': tags,
       'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+      'isAnonymous': isAnonymous,
       'likesCount': likesCount,
       'commentsCount': commentsCount,
-      'user': user.toJson(),
+      'user': isAnonymous ? null : user?.toJson(),
     };
   }
 
@@ -47,15 +51,18 @@ class JournalModel {
     return JournalModel(
       id: json['id'] as String,
       date: DateTime.parse(json['date'] as String),
-      mood: json['mood'] as String,
-      moodEmoji: json['moodEmoji'] as String,
+      mood: Mood.fromJson(json['mood'] as Map<String, dynamic>),
       thoughts: json['thoughts'] as String,
       intention: json['intention'] as String?,
       tags: List<String>.from(json['tags'] as List),
       createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      isAnonymous: json['isAnonymous'] as bool? ?? false,
       likesCount: json['likesCount'] as int? ?? 0,
       commentsCount: json['commentsCount'] as int? ?? 0,
-      user: UserModel.fromJson(json['user'] as Map<String, dynamic>),
+      user: json['user'] != null && !(json['isAnonymous'] as bool? ?? false)
+          ? UserModel.fromJson(json['user'] as Map<String, dynamic>)
+          : null,
     );
   }
 
