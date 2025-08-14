@@ -1,6 +1,5 @@
 import 'package:micro_journal/src/common/common.dart';
 
-// models/comments.dart
 class CommentModel {
   final String id;
   final String journalId;
