@@ -71,13 +71,14 @@ class _OnboardingPageState extends State<OnboardingPage>
     super.dispose();
   }
 
-  void _nextPage() {
+  Future<void> _nextPage() async {
     if (_currentPage < onboardingData.length - 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
     } else {
+      await AppPreferences.setFirstTime(false);
       context.push(Routes.login.path);
     }
   }

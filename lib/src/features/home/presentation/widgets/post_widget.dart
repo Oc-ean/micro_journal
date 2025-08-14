@@ -25,13 +25,12 @@ class PostWidget extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Post Header
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundImage: NetworkImage(journal.user.avatarUrl),
+                backgroundImage: NetworkImage(journal.user!.avatarUrl),
               ),
               const SizedBox(width: 15),
               Expanded(
@@ -42,7 +41,7 @@ class PostWidget extends StatelessWidget {
                       text: TextSpan(
                         children: [
                           TextSpan(
-                            text: '${journal.user.username} ',
+                            text: '${journal.user!.username} ',
                             style: Theme.of(context)
                                 .textTheme
                                 .titleLarge
@@ -81,20 +80,22 @@ class PostWidget extends StatelessWidget {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor.withOpacity(0.1),
+                        color: Theme.of(context)
+                            .primaryColor
+                            .withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            journal.moodEmoji,
+                            journal.mood.emoji,
                             style: const TextStyle(fontSize: 12),
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            journal.mood.substring(0, 1).toUpperCase() +
-                                journal.mood.substring(1),
+                            journal.mood.value.substring(0, 1).toUpperCase() +
+                                journal.mood.value.substring(1),
                             style: Theme.of(context)
                                 .textTheme
                                 .headlineLarge
@@ -115,7 +116,6 @@ class PostWidget extends StatelessWidget {
 
           const SizedBox(height: 15),
 
-          // Post Content
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
@@ -124,13 +124,12 @@ class PostWidget extends StatelessWidget {
             ),
           ),
 
-          // Today's Intention (if available)
           if (journal.intention != null && journal.intention!.isNotEmpty) ...[
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.grey[50],
+                color: context.theme.cardColor,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: Colors.grey[200]!),
               ),
@@ -250,50 +249,89 @@ class PostWidget extends StatelessWidget {
     final List<CommentModel> sampleComments = comments ??
         [
           CommentModel(
+            id: 'c1',
+            journalId: journal.id,
+            content: 'This is amazing! Keep up the great work 🔥',
             user: UserModel(
               id: '8',
+              email: 'jg4t4@example.com',
               username: 'john_doe',
               avatarUrl:
                   'https://images.pexels.com/photos/1321942/pexels-photo-1321942.jpeg',
             ),
-            text: 'This is amazing! Keep up the great work 🔥',
-            likes: 12,
-            timestamp: DateTime.now().subtract(const Duration(hours: 2)),
-            replies: [
-              CommentModel(
-                user: UserModel(
-                  id: '6',
-                  username: 'jane_doe',
-                  avatarUrl:
-                      'https://images.pexels.com/photos/1321942/pexels-photo-1321942.jpeg',
-                ),
-                text: 'Totally agree! So inspiring ✨',
-                likes: 3,
-                timestamp: DateTime.now().subtract(const Duration(hours: 1)),
-              ),
-            ],
+            isAnonymous: false,
+            createdAt: DateTime.now().subtract(const Duration(hours: 2)),
+            updatedAt: DateTime.now().subtract(const Duration(hours: 2)),
+            parentCommentId: null,
+            likes: ['2', '4', '6', '10', '12'], // mock user IDs
           ),
           CommentModel(
+            id: 'c2',
+            journalId: journal.id,
+            content: 'Totally agree! So inspiring ✨',
+            user: UserModel(
+              id: '6',
+              email: 'jg4t4@example.com',
+              username: 'jane_doe',
+              avatarUrl:
+                  'https://images.pexels.com/photos/1321942/pexels-photo-1321942.jpeg',
+            ),
+            isAnonymous: false,
+            createdAt: DateTime.now().subtract(const Duration(hours: 1)),
+            updatedAt: DateTime.now().subtract(const Duration(hours: 1)),
+            parentCommentId: 'c1',
+            // reply to comment c1
+            likes: ['3', '5', '7'],
+          ),
+          CommentModel(
+            id: 'c3',
+            journalId: journal.id,
+            content: "Love this content! ❤️ Can't wait to see more",
             user: UserModel(
               id: '2',
+              email: 'jg4t4@example.com',
               username: 'alex_92',
               avatarUrl:
                   'https://images.pexels.com/photos/1321942/pexels-photo-1321942.jpeg',
             ),
-            text: "Love this content! ❤️ Can't wait to see more",
-            likes: 8,
-            timestamp: DateTime.now().subtract(const Duration(minutes: 30)),
+            isAnonymous: false,
+            createdAt: DateTime.now().subtract(const Duration(minutes: 30)),
+            updatedAt: DateTime.now().subtract(const Duration(minutes: 30)),
+            parentCommentId: null,
+            likes: ['6', '1', '3', '4', '8', '9', '10', '11'],
           ),
           CommentModel(
+            id: 'c4',
+            journalId: journal.id,
+            content: "Congratulations! That's a huge milestone 🏃‍♀️",
             user: UserModel(
               id: '3',
+              email: 'jg4t4@example.com',
               username: 'fitness_guru',
               avatarUrl:
                   'https://images.pexels.com/photos/1321942/pexels-photo-1321942.jpeg',
             ),
-            text: "Congratulations! That's a huge milestone 🏃‍♀️",
-            likes: 15,
-            timestamp: DateTime.now().subtract(const Duration(minutes: 15)),
+            isAnonymous: false,
+            createdAt: DateTime.now().subtract(const Duration(minutes: 15)),
+            updatedAt: DateTime.now().subtract(const Duration(minutes: 15)),
+            parentCommentId: null,
+            likes: [
+              '1',
+              '4',
+              '5',
+              '9',
+              '10',
+              '11',
+              '12',
+              '13',
+              '14',
+              '15',
+              '16',
+              '17',
+              '18',
+              '19',
+              '20'
+            ],
           ),
         ];
 
@@ -305,7 +343,7 @@ class PostWidget extends StatelessWidget {
       },
       onLikeComment: (comment) {
         logman.info(
-          'Liked comment by: ${comment.user.username} on journal ${journal.id}',
+          'Liked comment by: ${comment.user?.username ?? 'anonymous'} on journal ${journal.id}',
         );
       },
     );

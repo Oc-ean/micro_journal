@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:micro_journal/src/common/common.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
 extension CustomBuildContextExtensions on BuildContext {
@@ -56,6 +57,24 @@ extension CustomBuildContextExtensions on BuildContext {
 
   T? formValue<T>(String name) {
     return (reactiveForm?.value as Map<String, dynamic>?)?[name] as T?;
+  }
+
+  void showSnackBar(SnackBar snackBar) {
+    ScaffoldMessenger.of(this).hideCurrentSnackBar();
+    ScaffoldMessenger.of(this).showSnackBar(snackBar);
+  }
+
+  void showSnackBarUsingText(String text, {bool isError = false}) {
+    final snackBar = SnackBar(
+      backgroundColor: isError ? Colors.redAccent : lightPrimary,
+      content: Text(
+        text,
+        style: const TextStyle(color: Colors.white),
+      ),
+    );
+    ScaffoldMessenger.of(this)
+      ..clearSnackBars()
+      ..showSnackBar(snackBar);
   }
 
   Future<dynamic> goCrazy({

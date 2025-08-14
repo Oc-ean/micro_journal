@@ -1,0 +1,24 @@
+import 'package:get_it/get_it.dart';
+import 'package:micro_journal/src/common/common.dart';
+
+final getIt = GetIt.instance;
+
+void setupLocator() {
+  getIt
+    ..registerLazySingleton(
+      () => AuthRepository(
+        userRepository: getIt<UserRepository>(),
+      ),
+    )
+    ..registerLazySingleton(
+      () => UserRepository(),
+    )
+    ..registerLazySingleton(
+      () => AuthCubit(authRepository: getIt<AuthRepository>()),
+    )
+    ..registerLazySingleton(
+      () => UserProfileCubit(
+          userRepository: getIt<UserRepository>(),
+          authRepository: getIt<AuthRepository>()),
+    );
+}

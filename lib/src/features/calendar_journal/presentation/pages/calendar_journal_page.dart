@@ -33,8 +33,7 @@ class _CalendarJournalPageState extends State<CalendarJournalPage> {
       DateTime(now.year, now.month, now.day): JournalModel(
         id: '1',
         date: now,
-        mood: 'happy',
-        moodEmoji: '😊',
+        mood: Mood(value: 'happy', emoji: '😊'),
         thoughts:
             'Had a great day today! Accomplished all my goals and felt really productive.',
         intention: 'Focus on maintaining this positive energy',
@@ -43,6 +42,7 @@ class _CalendarJournalPageState extends State<CalendarJournalPage> {
         commentsCount: 5,
         user: UserModel(
           id: '1',
+          email: 'jg4t4@example.com',
           username: 'john_fitness',
           avatarUrl:
               'https://images.pexels.com/photos/1321942/pexels-photo-1321942.jpeg',
@@ -51,8 +51,7 @@ class _CalendarJournalPageState extends State<CalendarJournalPage> {
       DateTime(now.year, now.month, now.day - 1): JournalModel(
         id: '2',
         date: now.subtract(const Duration(days: 1)),
-        mood: 'okay',
-        moodEmoji: '😐',
+        mood: Mood(value: 'okay', emoji: '😐'),
         thoughts:
             'It was an average day. Had some challenges at work but managed to push through.',
         intention: 'Be more patient with difficult situations',
@@ -61,6 +60,7 @@ class _CalendarJournalPageState extends State<CalendarJournalPage> {
         commentsCount: 2,
         user: UserModel(
           id: '2',
+          email: 'jg4t4@example.com',
           username: 'jane_fitness',
           avatarUrl:
               'https://images.pexels.com/photos/1321942/pexels-photo-1321942.jpeg',
@@ -69,8 +69,7 @@ class _CalendarJournalPageState extends State<CalendarJournalPage> {
       DateTime(now.year, now.month, now.day - 3): JournalModel(
         id: '3',
         date: now.subtract(const Duration(days: 3)),
-        mood: 'amazing',
-        moodEmoji: '🤩',
+        mood: Mood(value: 'amazing', emoji: '🤩'),
         thoughts:
             'What an incredible day! Got promoted at work and celebrated with family.',
         intention: 'Stay humble and continue growing',
@@ -79,6 +78,7 @@ class _CalendarJournalPageState extends State<CalendarJournalPage> {
         commentsCount: 8,
         user: UserModel(
           id: '3',
+          email: 'jg4t4@example.com',
           username: 'jane_fitness',
           avatarUrl:
               'https://images.pexels.com/photos/1321942/pexels-photo-1321942.jpeg',
@@ -87,8 +87,7 @@ class _CalendarJournalPageState extends State<CalendarJournalPage> {
       DateTime(now.year, now.month, now.day - 5): JournalModel(
         id: '4',
         date: now.subtract(const Duration(days: 5)),
-        mood: 'sad',
-        moodEmoji: '😢',
+        mood: Mood(value: 'sad', emoji: '😢'),
         thoughts:
             'Feeling a bit down today. Missing some friends and dealing with personal stuff.',
         intention: 'Reach out to loved ones for support',
@@ -97,6 +96,7 @@ class _CalendarJournalPageState extends State<CalendarJournalPage> {
         commentsCount: 12,
         user: UserModel(
           id: '4',
+          email: 'jg4t4@example.com',
           username: 'jane_fitness',
           avatarUrl:
               'https://images.pexels.com/photos/1321942/pexels-photo-1321942.jpeg',
@@ -105,8 +105,7 @@ class _CalendarJournalPageState extends State<CalendarJournalPage> {
       DateTime(now.year, now.month, now.day - 7): JournalModel(
         id: '5',
         date: now.subtract(const Duration(days: 7)),
-        mood: 'happy',
-        moodEmoji: '😊',
+        mood: Mood(value: 'happy', emoji: '😊'),
         thoughts:
             'Great weekend with friends. Went hiking and had meaningful conversations.',
         tags: ['love', 'health', 'gratitude'],
@@ -114,6 +113,7 @@ class _CalendarJournalPageState extends State<CalendarJournalPage> {
         commentsCount: 4,
         user: UserModel(
           id: '5',
+          email: 'jg4t4@example.com',
           username: 'jane_fitness',
           avatarUrl:
               'https://images.pexels.com/photos/1321942/pexels-photo-1321942.jpeg',
@@ -285,13 +285,15 @@ class _CalendarJournalPageState extends State<CalendarJournalPage> {
                     child: Row(
                       children: [
                         Text(
-                          selectedJournal.moodEmoji,
+                          selectedJournal.mood.emoji,
                           style: const TextStyle(fontSize: 16),
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          selectedJournal.mood.substring(0, 1).toUpperCase() +
-                              selectedJournal.mood.substring(1),
+                          selectedJournal.mood.value
+                                  .substring(0, 1)
+                                  .toUpperCase() +
+                              selectedJournal.mood.value.substring(1),
                           style: TextStyle(
                             color: Theme.of(context).primaryColor,
                             fontWeight: FontWeight.w600,

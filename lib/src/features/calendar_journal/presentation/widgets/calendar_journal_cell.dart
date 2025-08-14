@@ -76,7 +76,7 @@ class CalendarJournalCell extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    journal!.moodEmoji,
+                    journal!.mood.emoji,
                     style: const TextStyle(fontSize: 12),
                   ),
                 ),

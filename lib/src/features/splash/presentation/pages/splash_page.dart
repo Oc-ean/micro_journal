@@ -29,8 +29,17 @@ class _SplashPageState extends State<SplashPage>
 
     _controller.forward();
 
-    Future.delayed(const Duration(seconds: 3), () {
-      context.goNamed(Routes.onboarding.name);
+    Future.delayed(const Duration(seconds: 3), () async {
+      final firstTime = await AppPreferences.isFirstTime();
+      final authRepo = getIt<AuthRepository>();
+
+      if (firstTime) {
+        context.goNamed(Routes.onboarding.name);
+      } else if (authRepo.currentUser != null) {
+        context.goNamed(Routes.home.name);
+      } else {
+        context.goNamed(Routes.login.name);
+      }
     });
   }
 
