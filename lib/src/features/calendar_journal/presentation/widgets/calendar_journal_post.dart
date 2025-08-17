@@ -38,7 +38,7 @@ class CalendarJournalPost extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    journal.mood.value,
+                    journal.mood.emoji,
                     style: const TextStyle(fontSize: 24),
                   ),
                 ),
@@ -48,7 +48,7 @@ class CalendarJournalPost extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Feeling ${journal.mood}',
+                    'Feeling ${journal.mood.value}',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

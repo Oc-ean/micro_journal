@@ -43,7 +43,7 @@ class CommentModel {
       id: json['id'] as String,
       journalId: json['journalId'] as String,
       content: json['content'] as String,
-      user: json['user'] != null && !(json['isAnonymous'] as bool? ?? false)
+      user: json['user'] != null
           ? UserModel.fromJson(json['user'] as Map<String, dynamic>)
           : null,
       isAnonymous: json['isAnonymous'] as bool? ?? false,
@@ -52,5 +52,9 @@ class CommentModel {
       parentCommentId: json['parentCommentId'] as String?,
       likes: List<String>.from(json['likes'] as List? ?? []),
     );
+  }
+
+  factory CommentModel.sampleData() {
+    return CommentModel(id: '12', journalId: '1', content: 'hello');
   }
 }

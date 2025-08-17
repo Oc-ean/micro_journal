@@ -5,13 +5,13 @@ import 'package:solar_icons/solar_icons.dart';
 
 class PostWidget extends StatelessWidget {
   final JournalModel journal;
-  final VoidCallback? onLike;
+  final String currentUserId;
   final VoidCallback? onComment;
 
   const PostWidget({
     super.key,
     required this.journal,
-    this.onLike,
+    required this.currentUserId,
     this.onComment,
   });
 
@@ -28,10 +28,13 @@ class PostWidget extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundImage: NetworkImage(journal.user!.avatarUrl),
-              ),
+              if (journal.user?.avatarUrl == null)
+                Text(journal.user!.username.substring(0, 1))
+              else
+                CircleAvatar(
+                  radius: 20,
+                  backgroundImage: NetworkImage(journal.user!.avatarUrl),
+                ),
               const SizedBox(width: 15),
               Expanded(
                 child: Column(
@@ -192,25 +195,22 @@ class PostWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              GestureDetector(
-                onTap: onLike,
-                child: Row(
-                  children: [
-                    const Icon(
-                      SolarIconsBold.heart,
-                      size: 20,
-                      color: Colors.red,
-                    ),
-                    const SizedBox(width: 3),
-                    Text(
-                      journal.likesCount.toString(),
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(fontSize: 15),
-                    ),
-                  ],
-                ),
+              Row(
+                children: [
+                  const Icon(
+                    SolarIconsBold.heart,
+                    size: 20,
+                    color: Colors.red,
+                  ),
+                  const SizedBox(width: 3),
+                  Text(
+                    (journal.likes?.length ?? 0).toString(),
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(fontSize: 15),
+                  ),
+                ],
               ),
               Text(
                 '${journal.commentsCount} ${journal.commentsCount == 1 ? 'comment' : 'comments'}',
@@ -228,10 +228,14 @@ class PostWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              const LikeRowWidget(),
+              LikeRowWidget(
+                journalId: journal.id,
+                userId: currentUserId,
+                isLiked: journal.likes?.contains(currentUserId) ?? false,
+              ),
               GestureDetector(
                 onTap: () =>
-                    openCommentsModal(context: context, journal: journal),
+                    openCommentsModal(context: context, journalId: journal.id),
                 child: const CommentRowWidget(),
               ),
             ],
@@ -243,109 +247,9 @@ class PostWidget extends StatelessWidget {
 
   void openCommentsModal({
     required BuildContext context,
-    required JournalModel journal,
+    required String journalId,
     List<CommentModel>? comments,
   }) {
-    final List<CommentModel> sampleComments = comments ??
-        [
-          CommentModel(
-            id: 'c1',
-            journalId: journal.id,
-            content: 'This is amazing! Keep up the great work 🔥',
-            user: UserModel(
-              id: '8',
-              email: 'jg4t4@example.com',
-              username: 'john_doe',
-              avatarUrl:
-                  'https://images.pexels.com/photos/1321942/pexels-photo-1321942.jpeg',
-            ),
-            isAnonymous: false,
-            createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-            updatedAt: DateTime.now().subtract(const Duration(hours: 2)),
-            parentCommentId: null,
-            likes: ['2', '4', '6', '10', '12'], // mock user IDs
-          ),
-          CommentModel(
-            id: 'c2',
-            journalId: journal.id,
-            content: 'Totally agree! So inspiring ✨',
-            user: UserModel(
-              id: '6',
-              email: 'jg4t4@example.com',
-              username: 'jane_doe',
-              avatarUrl:
-                  'https://images.pexels.com/photos/1321942/pexels-photo-1321942.jpeg',
-            ),
-            isAnonymous: false,
-            createdAt: DateTime.now().subtract(const Duration(hours: 1)),
-            updatedAt: DateTime.now().subtract(const Duration(hours: 1)),
-            parentCommentId: 'c1',
-            // reply to comment c1
-            likes: ['3', '5', '7'],
-          ),
-          CommentModel(
-            id: 'c3',
-            journalId: journal.id,
-            content: "Love this content! ❤️ Can't wait to see more",
-            user: UserModel(
-              id: '2',
-              email: 'jg4t4@example.com',
-              username: 'alex_92',
-              avatarUrl:
-                  'https://images.pexels.com/photos/1321942/pexels-photo-1321942.jpeg',
-            ),
-            isAnonymous: false,
-            createdAt: DateTime.now().subtract(const Duration(minutes: 30)),
-            updatedAt: DateTime.now().subtract(const Duration(minutes: 30)),
-            parentCommentId: null,
-            likes: ['6', '1', '3', '4', '8', '9', '10', '11'],
-          ),
-          CommentModel(
-            id: 'c4',
-            journalId: journal.id,
-            content: "Congratulations! That's a huge milestone 🏃‍♀️",
-            user: UserModel(
-              id: '3',
-              email: 'jg4t4@example.com',
-              username: 'fitness_guru',
-              avatarUrl:
-                  'https://images.pexels.com/photos/1321942/pexels-photo-1321942.jpeg',
-            ),
-            isAnonymous: false,
-            createdAt: DateTime.now().subtract(const Duration(minutes: 15)),
-            updatedAt: DateTime.now().subtract(const Duration(minutes: 15)),
-            parentCommentId: null,
-            likes: [
-              '1',
-              '4',
-              '5',
-              '9',
-              '10',
-              '11',
-              '12',
-              '13',
-              '14',
-              '15',
-              '16',
-              '17',
-              '18',
-              '19',
-              '20'
-            ],
-          ),
-        ];
-
-    CommentsModalSheet.show(
-      context: context,
-      comments: sampleComments,
-      onAddComment: (comment) {
-        logman.info('New comment on journal ${journal.id}: $comment');
-      },
-      onLikeComment: (comment) {
-        logman.info(
-          'Liked comment by: ${comment.user?.username ?? 'anonymous'} on journal ${journal.id}',
-        );
-      },
-    );
+    CommentsModalSheet.show(context: context, journalId: journalId);
   }
 }
