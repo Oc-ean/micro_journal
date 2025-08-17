@@ -2,7 +2,6 @@ import 'package:micro_journal/src/common/common.dart';
 
 class JournalModel {
   final String id;
-  final DateTime date;
   final Mood mood;
   final String thoughts;
   final String? intention;
@@ -10,13 +9,12 @@ class JournalModel {
   final DateTime createdAt;
   final DateTime updatedAt;
   final bool isAnonymous;
-  final int likesCount;
+  final List<String>? likes;
   final int commentsCount;
   final UserModel? user;
 
   JournalModel({
     required this.id,
-    required this.date,
     required this.mood,
     required this.thoughts,
     this.intention,
@@ -24,7 +22,7 @@ class JournalModel {
     DateTime? createdAt,
     DateTime? updatedAt,
     this.isAnonymous = false,
-    this.likesCount = 0,
+    this.likes,
     this.commentsCount = 0,
     this.user,
   })  : createdAt = createdAt ?? DateTime.now(),
@@ -33,7 +31,6 @@ class JournalModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'date': date.toIso8601String(),
       'mood': mood.toJson(),
       'thoughts': thoughts,
       'intention': intention,
@@ -41,16 +38,15 @@ class JournalModel {
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
       'isAnonymous': isAnonymous,
-      'likesCount': likesCount,
+      'likes': likes,
       'commentsCount': commentsCount,
-      'user': isAnonymous ? null : user?.toJson(),
+      'user': user?.toJson(),
     };
   }
 
   factory JournalModel.fromJson(Map<String, dynamic> json) {
     return JournalModel(
       id: json['id'] as String,
-      date: DateTime.parse(json['date'] as String),
       mood: Mood.fromJson(json['mood'] as Map<String, dynamic>),
       thoughts: json['thoughts'] as String,
       intention: json['intention'] as String?,
@@ -58,15 +54,44 @@ class JournalModel {
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
       isAnonymous: json['isAnonymous'] as bool? ?? false,
-      likesCount: json['likesCount'] as int? ?? 0,
+      likes: List<String>.from(json['likes'] as List? ?? []),
       commentsCount: json['commentsCount'] as int? ?? 0,
-      user: json['user'] != null && !(json['isAnonymous'] as bool? ?? false)
+      user: json['user'] != null
           ? UserModel.fromJson(json['user'] as Map<String, dynamic>)
           : null,
     );
   }
 
-  DateTime get dateOnly => DateTime(date.year, date.month, date.day);
+  JournalModel copyWith({
+    String? id,
+    Mood? mood,
+    String? thoughts,
+    String? intention,
+    List<String>? tags,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    bool? isAnonymous,
+    List<String>? likes,
+    int? commentsCount,
+    UserModel? user,
+  }) {
+    return JournalModel(
+      id: id ?? this.id,
+      mood: mood ?? this.mood,
+      thoughts: thoughts ?? this.thoughts,
+      intention: intention ?? this.intention,
+      tags: tags ?? this.tags,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      isAnonymous: isAnonymous ?? this.isAnonymous,
+      likes: likes ?? this.likes,
+      commentsCount: commentsCount ?? this.commentsCount,
+      user: user ?? this.user,
+    );
+  }
+
+  DateTime get dateOnly =>
+      DateTime(createdAt.year, createdAt.month, createdAt.day);
 
   bool get isToday {
     final now = DateTime.now();
@@ -89,4 +114,18 @@ class JournalModel {
   }
 
   List<String> get hashTags => tags.map((tag) => '#$tag').toList();
+
+  factory JournalModel.sampleData() {
+    return JournalModel(
+      id: 'Sauce',
+      mood: Mood(value: 'happy', emoji: '😊'),
+      thoughts: 'Random',
+      user: UserModel(
+        id: 'd2',
+        username: 'John',
+        email: 'Johndoe@gmail.com',
+        avatarUrl: 'ww',
+      ),
+    );
+  }
 }

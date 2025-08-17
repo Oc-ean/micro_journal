@@ -1,49 +1,31 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:micro_journal/src/common/common.dart';
 
-abstract class JournalRepository {
-  Stream<List<JournalModel>> getJournals();
-  Stream<JournalModel?> getJournal(String id);
-  Future<void> createJournal(JournalModel journal);
-  Future<void> updateJournal(JournalModel journal);
-  Future<void> deleteJournal(String id);
-
-  Stream<List<CommentModel>> getComments(String journalId);
-  Future<void> addComment(CommentModel comment);
-  Future<void> deleteComment(String commentId);
-
-  Future<void> likeJournal(String journalId, String userId);
-  Future<void> unlikeJournal(String journalId, String userId);
-  Future<bool> isJournalLiked(String journalId, String userId);
-
-  Future<void> likeComment(String commentId, String userId);
-  Future<void> unlikeComment(String commentId, String userId);
-}
-
-class JournalRepositoryImpl implements JournalRepository {
+class JournalRepository {
   final FirebaseFirestore _firestore;
 
-  JournalRepositoryImpl(this._firestore);
+  JournalRepository({FirebaseFirestore? firestore})
+      : _firestore = firestore ?? FirebaseFirestore.instance;
 
-  @override
   Stream<List<JournalModel>> getJournals() {
     return _firestore
         .collection('journals')
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => JournalModel.fromJson(doc.data()))
-            .toList());
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => JournalModel.fromJson(doc.data()))
+              .toList(),
+        );
   }
 
-  @override
   Stream<JournalModel?> getJournal(String id) {
     return _firestore.collection('journals').doc(id).snapshots().map(
-        (snapshot) =>
-            snapshot.exists ? JournalModel.fromJson(snapshot.data()!) : null);
+          (snapshot) =>
+              snapshot.exists ? JournalModel.fromJson(snapshot.data()!) : null,
+        );
   }
 
-  @override
   Future<void> createJournal(JournalModel journal) async {
     await _firestore
         .collection('journals')
@@ -51,7 +33,6 @@ class JournalRepositoryImpl implements JournalRepository {
         .set(journal.toJson());
   }
 
-  @override
   Future<void> updateJournal(JournalModel journal) async {
     await _firestore
         .collection('journals')
@@ -59,24 +40,50 @@ class JournalRepositoryImpl implements JournalRepository {
         .update(journal.toJson());
   }
 
-  @override
   Future<void> deleteJournal(String id) async {
     await _firestore.collection('journals').doc(id).delete();
   }
 
-  @override
+  Future<List<JournalModel>> getJournalsForMonth(
+    DateTime month,
+    String userId,
+  ) async {
+    try {
+      final snapshot = await _firestore
+          .collection('journals')
+          .where('user.id', isEqualTo: userId)
+          .get();
+
+      return snapshot.docs
+          .map((doc) => JournalModel.fromJson(doc.data()))
+          .where((journal) {
+        final date = journal.createdAt;
+        return date.year == month.year && date.month == month.month;
+      }).toList();
+    } catch (e) {
+      logman.error('Fallback month journals failed: $e');
+      return [];
+    }
+  }
+
   Stream<List<CommentModel>> getComments(String journalId) {
     return _firestore
         .collection('comments')
         .where('journalId', isEqualTo: journalId)
-        .orderBy('createdAt', descending: false)
         .snapshots()
-        .map((snapshot) => snapshot.docs
+        .map(
+      (snapshot) {
+        final comments = snapshot.docs
             .map((doc) => CommentModel.fromJson(doc.data()))
-            .toList());
+            .toList();
+
+        comments.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+
+        return comments;
+      },
+    );
   }
 
-  @override
   Future<void> addComment(CommentModel comment) async {
     await _firestore
         .collection('comments')
@@ -84,28 +91,22 @@ class JournalRepositoryImpl implements JournalRepository {
         .set(comment.toJson());
   }
 
-  @override
   Future<void> deleteComment(String commentId) async {
     await _firestore.collection('comments').doc(commentId).delete();
   }
 
-  @override
   Future<void> likeJournal(String journalId, String userId) async {
     await _firestore.collection('journals').doc(journalId).update({
-      'likesCount': FieldValue.increment(1),
       'likes': FieldValue.arrayUnion([userId]),
     });
   }
 
-  @override
   Future<void> unlikeJournal(String journalId, String userId) async {
     await _firestore.collection('journals').doc(journalId).update({
-      'likesCount': FieldValue.increment(-1),
       'likes': FieldValue.arrayRemove([userId]),
     });
   }
 
-  @override
   Future<bool> isJournalLiked(String journalId, String userId) async {
     final doc = await _firestore.collection('journals').doc(journalId).get();
     if (!doc.exists) return false;
@@ -113,14 +114,12 @@ class JournalRepositoryImpl implements JournalRepository {
     return likes.contains(userId);
   }
 
-  @override
   Future<void> likeComment(String commentId, String userId) async {
     await _firestore.collection('comments').doc(commentId).update({
       'likes': FieldValue.arrayUnion([userId]),
     });
   }
 
-  @override
   Future<void> unlikeComment(String commentId, String userId) async {
     await _firestore.collection('comments').doc(commentId).update({
       'likes': FieldValue.arrayRemove([userId]),

@@ -14,7 +14,7 @@ class UserProfileCubit extends Cubit<UserProfileState> {
 
   UserProfileCubit(
       {required UserRepository userRepository,
-      required AuthRepository authRepository})
+      required AuthRepository authRepository,})
       : _userRepository = userRepository,
         _authRepository = authRepository,
         super(const UserProfileInitial()) {
