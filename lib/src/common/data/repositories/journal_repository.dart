@@ -85,10 +85,17 @@ class JournalRepository {
   }
 
   Future<void> addComment(CommentModel comment) async {
-    await _firestore
-        .collection('comments')
-        .doc(comment.id)
-        .set(comment.toJson());
+    final batch = _firestore.batch();
+
+    final commentRef = _firestore.collection('comments').doc(comment.id);
+    batch.set(commentRef, comment.toJson());
+    final journalRef = _firestore.collection('journals').doc(comment.journalId);
+    batch.update(journalRef, {
+      'commentsCount': FieldValue.increment(1),
+      'updatedAt': DateTime.now().toIso8601String(),
+    });
+
+    await batch.commit();
   }
 
   Future<void> deleteComment(String commentId) async {
