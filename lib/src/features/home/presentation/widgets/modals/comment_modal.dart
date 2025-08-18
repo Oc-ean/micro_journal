@@ -120,7 +120,9 @@ class _CommentsModalSheetState extends State<CommentsModalSheet> {
   }
 
   List<CommentModel> _getRepliesForComment(
-      List<CommentModel> allComments, String parentCommentId,) {
+    List<CommentModel> allComments,
+    String parentCommentId,
+  ) {
     return allComments
         .where((comment) => comment.parentCommentId == parentCommentId)
         .toList();
@@ -245,14 +247,13 @@ class _CommentsModalSheetState extends State<CommentsModalSheet> {
                     ),
                     itemCount: _getTopLevelComments(comments).length,
                     itemBuilder: (context, index) {
-                      final comment = comments[index];
                       final userId = getIt<AuthRepository>().currentUser!.uid;
                       final topLevelComment =
                           _getTopLevelComments(comments)[index];
                       final replies =
                           _getRepliesForComment(comments, topLevelComment.id);
                       return CommentItemWidget(
-                        comment: comment,
+                        comment: topLevelComment,
                         replies: replies,
                         currentUserId: userId,
                         onReply: _handleReply,

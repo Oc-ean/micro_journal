@@ -116,29 +116,29 @@ class _HomePageState extends State<HomePage>
                     ],
                   ),
                   const SizedBox(height: 16),
+                  Skeletonizer(
+                    enabled: isLoading,
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: journals.length,
+                      itemBuilder: (context, index) {
+                        final journal = journals[index];
+                        return PostWidget(
+                          journal: journal,
+                          currentUserId:
+                              getIt<AuthRepository>().currentUser!.uid,
+                        );
+                      },
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 16),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
                   if (state is JournalLoaded && state.journals.isEmpty) ...[
                     const SizedBox(height: 60),
                     _buildEmptyState(),
-                  ] else
-                    Skeletonizer(
-                      enabled: isLoading,
-                      child: ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: journals.length,
-                        itemBuilder: (context, index) {
-                          final journal = journals[index];
-                          return PostWidget(
-                            journal: journal,
-                            currentUserId:
-                                getIt<AuthRepository>().currentUser!.uid,
-                          );
-                        },
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(height: 16),
-                      ),
-                    ),
-                  const SizedBox(height: 20),
+                  ],
                 ],
               ],
             ),
