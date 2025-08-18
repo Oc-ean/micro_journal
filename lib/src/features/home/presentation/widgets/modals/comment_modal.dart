@@ -153,13 +153,6 @@ class _CommentsModalSheetState extends State<CommentsModalSheet> {
 
     if (parent.parentCommentId == null) return parent.id;
     return _findRootParent(parent, allComments);
-  List<CommentModel> _getRepliesForComment(
-    List<CommentModel> allComments,
-    String parentCommentId,
-  ) {
-    return allComments
-        .where((comment) => comment.parentCommentId == parentCommentId)
-        .toList();
   }
 
   @override
