@@ -113,12 +113,46 @@ class _CommentsModalSheetState extends State<CommentsModalSheet> {
     });
   }
 
-  List<CommentModel> _getTopLevelComments(List<CommentModel> allComments) {
-    return allComments
-        .where((comment) => comment.parentCommentId == null)
-        .toList();
+  Map<String, List<CommentModel>> _buildCommentList(
+      List<CommentModel> allComments) {
+    final Map<String, List<CommentModel>> groups = {};
+    final List<CommentModel> parentComments = [];
+
+    for (final comment in allComments) {
+      if (comment.parentCommentId == null) {
+        parentComments.add(comment);
+        groups[comment.id] = [];
+      } else {
+        final String rootParentId = _findRootParent(comment, allComments);
+        groups.putIfAbsent(rootParentId, () => []);
+        groups[rootParentId]!.add(comment);
+      }
+    }
+
+    parentComments.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+
+    for (final replies in groups.values) {
+      replies.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    }
+
+    final Map<String, List<CommentModel>> result = {};
+    for (final parent in parentComments) {
+      result[parent.id] = groups[parent.id] ?? [];
+    }
+
+    return result;
   }
 
+  String _findRootParent(CommentModel comment, List<CommentModel> allComments) {
+    if (comment.parentCommentId == null) return comment.id;
+
+    final parent = allComments.firstWhere(
+      (c) => c.id == comment.parentCommentId,
+      orElse: () => comment,
+    );
+
+    if (parent.parentCommentId == null) return parent.id;
+    return _findRootParent(parent, allComments);
   List<CommentModel> _getRepliesForComment(
     List<CommentModel> allComments,
     String parentCommentId,
@@ -239,21 +273,24 @@ class _CommentsModalSheetState extends State<CommentsModalSheet> {
                       ),
                     );
                   }
-
+                  final commentGroups = _buildCommentList(comments);
+                  final userId = getIt<AuthRepository>().currentUser!.uid;
+                  final parentComments =
+                      comments.where((c) => c.parentCommentId == null).toList();
+                  parentComments
+                      .sort((a, b) => a.createdAt.compareTo(b.createdAt));
                   return ListView.builder(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 8,
                     ),
-                    itemCount: _getTopLevelComments(comments).length,
+                    itemCount: parentComments.length,
                     itemBuilder: (context, index) {
-                      final userId = getIt<AuthRepository>().currentUser!.uid;
-                      final topLevelComment =
-                          _getTopLevelComments(comments)[index];
-                      final replies =
-                          _getRepliesForComment(comments, topLevelComment.id);
+                      final parentComment = parentComments[index];
+                      final replies = commentGroups[parentComment.id] ?? [];
+
                       return CommentItemWidget(
-                        comment: topLevelComment,
+                        comment: parentComment,
                         replies: replies,
                         currentUserId: userId,
                         onReply: _handleReply,

@@ -74,7 +74,10 @@ class _HomePageState extends State<HomePage>
         bloc: _journalCubit,
         builder: (context, state) {
           if (state is JournalError) {
-            return _buildErrorState(state.message);
+            return CustomErrorWidget(
+              message: state.message,
+              onRetry: () => _journalCubit.loadJournals(),
+            );
           }
 
           final journals = state is JournalLoaded
@@ -260,49 +263,6 @@ class _HomePageState extends State<HomePage>
             ),
           ),
           const SizedBox(height: 24),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildErrorState([String? message]) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.error_outline,
-            size: 80,
-            color: Colors.red[300],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Oops! Something went wrong',
-            style: context.textTheme.titleLarge?.copyWith(
-              color: Colors.red[600],
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          if (message != null) ...[
-            const SizedBox(height: 8),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: context.textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
-            ),
-          ],
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: () => _journalCubit.loadJournals(),
-            icon: const Icon(Icons.refresh),
-            label: const Text('Try again'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: context.theme.primaryColor,
-              foregroundColor: Colors.white,
-            ),
-          ),
         ],
       ),
     );
