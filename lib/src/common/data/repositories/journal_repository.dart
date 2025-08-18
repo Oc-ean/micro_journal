@@ -89,7 +89,6 @@ class JournalRepository {
 
     final commentRef = _firestore.collection('comments').doc(comment.id);
     batch.set(commentRef, comment.toJson());
-
     final journalRef = _firestore.collection('journals').doc(comment.journalId);
     batch.update(journalRef, {
       'commentsCount': FieldValue.increment(1),
