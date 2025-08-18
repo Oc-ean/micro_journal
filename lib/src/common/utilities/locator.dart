@@ -18,8 +18,9 @@ void setupLocator() {
     )
     ..registerLazySingleton(
       () => UserProfileCubit(
-          userRepository: getIt<UserRepository>(),
-          authRepository: getIt<AuthRepository>(),),
+        userRepository: getIt<UserRepository>(),
+        authRepository: getIt<AuthRepository>(),
+      ),
     )
     ..registerLazySingleton(
       () => JournalRepository(),
@@ -35,5 +36,11 @@ void setupLocator() {
     )
     ..registerLazySingleton(
       () => CalendarCubit(getIt<JournalRepository>()),
+    )
+    ..registerLazySingleton(
+      () => CommentLikesCubit(getIt<JournalRepository>()),
+    )
+    ..registerLazySingleton(
+      () => JournalStatsCubit(journalRepository: getIt<JournalRepository>()),
     );
 }

@@ -53,4 +53,6 @@ class JournalStats {
       'moods': moods.map((m) => m.toJson()).toList(),
     };
   }
+
+  factory JournalStats.sampleData() => JournalStats.mockData;
 }
