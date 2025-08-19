@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:micro_journal/src/common/common.dart';
 
 Exception handleFirebaseAuthException(FirebaseAuthException e) {
@@ -110,4 +111,30 @@ String getTimeAgo(DateTime timestamp) {
   } else {
     return 'now';
   }
+}
+
+void showNoInternetPopup(BuildContext context) {
+  if (ModalRoute.of(context)?.isCurrent != true) return;
+
+  showDialog<void>(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) => NoInternetPopup(
+      onRetry: () async {
+        final cubit = getIt<InternetCubit>();
+        final success = await cubit.checkAgain();
+
+        if (!success) {
+          context.showSnackBar(
+            const SnackBar(
+              content: Text('Still no internet connection'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        } else {
+          router.pop();
+        }
+      },
+    ),
+  );
 }

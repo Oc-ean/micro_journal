@@ -15,6 +15,18 @@ class AuthCubit extends Cubit<AuthState> {
       : _authRepository = authRepository,
         super(const AuthInitial()) {
     _initializeAuth();
+    ConnectionManager().registerCubit<AuthCubit>(_reconnect);
+  }
+
+  void _reconnect() {
+    logman.info('AuthCubit reconnecting...');
+
+    if (state is AuthError) {
+      logman.info('Reconnecting from error state');
+      _initializeAuth();
+    } else if (state is AuthAuthenticated) {
+      logman.info('Refreshing authenticated state');
+    }
   }
 
   void _initializeAuth() {
