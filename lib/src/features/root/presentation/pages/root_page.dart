@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:micro_journal/src/common/common.dart';
@@ -46,7 +47,17 @@ class RootPage extends StatelessWidget {
         ? Colors.grey.withValues(alpha: 0.7)
         : Colors.grey.shade900;
     return Scaffold(
-      body: navigationShell,
+      body: BlocListener<InternetCubit, InternetState>(
+        bloc: getIt<InternetCubit>(),
+        listener: (context, state) {
+          if (state is InternetDisconnected) {
+            showNoInternetPopup(context);
+          } else if (state is InternetConnected) {
+            context.showSnackBarUsingText('Back online');
+          }
+        },
+        child: navigationShell,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         elevation: 4,
         type: BottomNavigationBarType.fixed,

@@ -6,6 +6,9 @@ final getIt = GetIt.instance;
 void setupLocator() {
   getIt
     ..registerLazySingleton(
+      () => InternetCubit(),
+    )
+    ..registerLazySingleton(
       () => AuthRepository(
         userRepository: getIt<UserRepository>(),
       ),

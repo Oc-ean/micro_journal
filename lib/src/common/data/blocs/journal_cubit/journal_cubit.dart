@@ -12,6 +12,16 @@ class JournalCubit extends Cubit<JournalState> {
 
   JournalCubit(this._repository) : super(JournalInitial()) {
     loadJournals();
+    ConnectionManager().registerCubit<JournalCubit>(_reconnect);
+  }
+
+  void _reconnect() {
+    logman.info('JournalCubit reconnecting...');
+
+    if (state is JournalLoaded || state is JournalError) {
+      logman.info('Reloading journals after reconnection');
+      loadJournals();
+    }
   }
 
   void loadJournals() {
