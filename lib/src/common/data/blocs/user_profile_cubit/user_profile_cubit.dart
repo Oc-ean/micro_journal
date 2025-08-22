@@ -12,10 +12,10 @@ class UserProfileCubit extends Cubit<UserProfileState> {
   StreamSubscription<UserModel?>? _userDataSubscription;
   String? _currentUserId;
 
-  UserProfileCubit(
-      {required UserRepository userRepository,
-      required AuthRepository authRepository,})
-      : _userRepository = userRepository,
+  UserProfileCubit({
+    required UserRepository userRepository,
+    required AuthRepository authRepository,
+  })  : _userRepository = userRepository,
         _authRepository = authRepository,
         super(const UserProfileInitial()) {
     loadUserProfile();

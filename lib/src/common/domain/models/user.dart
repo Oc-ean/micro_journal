@@ -7,6 +7,7 @@ class UserModel {
   final List<UserModel> following;
   final int journals;
   final bool enabledAnonymousSharing;
+  final List<String> fcmTokens;
 
   UserModel({
     required this.id,
@@ -15,6 +16,7 @@ class UserModel {
     required this.avatarUrl,
     this.followers = const [],
     this.following = const [],
+    this.fcmTokens = const [],
     this.journals = 0,
     this.enabledAnonymousSharing = false,
   });
@@ -42,6 +44,7 @@ class UserModel {
       enabledAnonymousSharing:
           json['enabledAnonymousSharing'] as bool? ?? false,
       journals: json['journals'] as int? ?? 0,
+      fcmTokens: List<String>.from(json['fcmTokens'] as List? ?? []),
     );
   }
 
@@ -55,6 +58,7 @@ class UserModel {
       'following': following.map((following) => following.toJson()).toList(),
       'enabledAnonymousSharing': enabledAnonymousSharing,
       'journals': journals,
+      'fcmTokens': fcmTokens,
     };
   }
 

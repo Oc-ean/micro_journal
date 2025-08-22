@@ -4,6 +4,7 @@ import 'package:micro_journal/src/common/common.dart';
 final getIt = GetIt.instance;
 
 void setupLocator() {
+  final notificationService = NotificationService.instance;
   getIt
     ..registerLazySingleton(
       () => InternetCubit(),
@@ -11,6 +12,7 @@ void setupLocator() {
     ..registerLazySingleton(
       () => AuthRepository(
         userRepository: getIt<UserRepository>(),
+        notificationService: notificationService,
       ),
     )
     ..registerLazySingleton(
@@ -26,7 +28,7 @@ void setupLocator() {
       ),
     )
     ..registerLazySingleton(
-      () => JournalRepository(),
+      () => JournalRepository(notificationService: notificationService),
     )
     ..registerLazySingleton(
       () => JournalCubit(getIt<JournalRepository>()),
