@@ -6,14 +6,17 @@ class AuthRepository {
   final FirebaseAuth _firebaseAuth;
   final GoogleSignIn _googleSignIn;
   final UserRepository _userRepository;
+  final NotificationService _notificationService;
 
   AuthRepository({
     FirebaseAuth? firebaseAuth,
     GoogleSignIn? googleSignIn,
     required UserRepository userRepository,
+    required NotificationService notificationService,
   })  : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
         _googleSignIn = googleSignIn ?? GoogleSignIn(),
-        _userRepository = userRepository;
+        _userRepository = userRepository,
+        _notificationService = notificationService;
   Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
 
   User? get currentUser => _firebaseAuth.currentUser;
@@ -44,6 +47,8 @@ class AuthRepository {
         throw Exception('Failed to authenticate with Firebase');
       }
 
+      final token = await _notificationService.getCurrentToken();
+
       final userModel = UserModel(
         id: firebaseUser.uid,
         email: firebaseUser.email ?? '',
@@ -51,9 +56,11 @@ class AuthRepository {
         avatarUrl: firebaseUser.photoURL ?? '',
         followers: [],
         following: [],
+        fcmTokens: [token!],
       );
 
       await _userRepository.createOrUpdateUser(userModel);
+      await _initializeNotifications(firebaseUser.uid);
 
       return userModel;
     } on FirebaseAuthException catch (e) {
@@ -62,6 +69,19 @@ class AuthRepository {
     } catch (e) {
       logman.error('Failed to sign in with Google: $e');
       throw Exception('Failed to sign in with Google: $e');
+    }
+  }
+
+  Future<void> _initializeNotifications(String userId) async {
+    try {
+      await _notificationService.initialize();
+
+      final fcmToken = await _notificationService.getCurrentToken();
+      if (fcmToken != null) {
+        await _userRepository.updateFCMToken(userId, fcmToken);
+      }
+    } catch (e) {
+      logman.error('Failed to initialize notifications: $e');
     }
   }
 

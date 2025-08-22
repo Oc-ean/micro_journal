@@ -45,10 +45,12 @@ class _LikeRowWidgetState extends State<LikeRowWidget>
     _pulseAnimation = Tween<double>(
       begin: 1.0,
       end: 1.4,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ),);
+    ).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInOut,
+      ),
+    );
     _likesCubit = getIt<JournalLikesCubit>();
   }
 

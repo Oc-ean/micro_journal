@@ -83,22 +83,58 @@ class UserRepository {
     }
   }
 
-  Future<void> createOrUpdateUser(UserModel user) async {
+  Future<void> createOrUpdateUser(UserModel user, {String? fcmToken}) async {
     try {
-      final userRef = _firestore.collection('users').doc(user.id);
-      final userDoc = await userRef.get();
-
-      if (userDoc.exists) {
-        await userRef.update({
-          'email': user.email,
-          'username': user.username,
-          'avatarUrl': user.avatarUrl,
-        });
-      } else {
-        await userRef.set(user.toJson());
+      final updates = user.toJson();
+      if (fcmToken != null) {
+        updates['fcmTokens'] = FieldValue.arrayUnion([fcmToken]);
       }
+
+      await _firestore.collection('users').doc(user.id).set(
+            updates,
+            SetOptions(merge: true),
+          );
     } catch (e) {
+      logman.error('Failed to create/update user: $e');
       throw Exception('Failed to create/update user: $e');
+    }
+  }
+
+  Future<void> updateFCMToken(String userId, String fcmToken) async {
+    try {
+      await _firestore.collection('users').doc(userId).update({
+        'fcmTokens': FieldValue.arrayUnion([fcmToken]),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      throw Exception('Failed to update FCM token: $e');
+    }
+  }
+
+  Future<void> removeFCMToken(String userId, String fcmToken) async {
+    try {
+      await _firestore.collection('users').doc(userId).update({
+        'fcmTokens': FieldValue.arrayRemove([fcmToken]),
+      });
+    } catch (e) {
+      throw Exception('Failed to remove FCM token: $e');
+    }
+  }
+
+  Future<List<String>> getUserFCMTokens(String userId) async {
+    try {
+      final doc = await _firestore.collection('users').doc(userId).get();
+      final data = doc.data();
+      if (data == null) return [];
+      final tokens = data['fcmTokens'];
+      if (tokens is List) {
+        final fcmTokens = tokens.whereType<String>().toList();
+        return fcmTokens;
+      }
+
+      return [];
+    } catch (e) {
+      throw Exception('Failed to get user FCM tokens: $e');
     }
   }
 }

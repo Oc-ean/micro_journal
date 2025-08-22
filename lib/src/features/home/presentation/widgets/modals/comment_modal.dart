@@ -114,7 +114,8 @@ class _CommentsModalSheetState extends State<CommentsModalSheet> {
   }
 
   Map<String, List<CommentModel>> _buildCommentList(
-      List<CommentModel> allComments) {
+    List<CommentModel> allComments,
+  ) {
     final Map<String, List<CommentModel>> groups = {};
     final List<CommentModel> parentComments = [];
 

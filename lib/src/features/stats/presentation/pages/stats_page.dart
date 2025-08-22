@@ -59,7 +59,9 @@ class _StatsPageState extends State<StatsPage>
         builder: (context, state) {
           if (state is JournalStatsError) {
             return CustomErrorWidget(
-                message: state.message, onRetry: _loadStats);
+              message: state.message,
+              onRetry: _loadStats,
+            );
           }
 
           final stats = state is JournalStatsLoaded
