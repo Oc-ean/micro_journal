@@ -42,6 +42,23 @@ final router = GoRouter(
       name: Routes.create.name,
       builder: (context, state) => const CreateJournalPage(),
     ),
+    GoRoute(
+      path: Routes.notificationDetails.path,
+      name: Routes.notificationDetails.name,
+      builder: (context, state) {
+        final extra = state.extra as Map<dynamic, dynamic>? ?? {};
+
+        final postId = extra['postId'] as String? ?? '';
+        final commentId = extra['commentId'] as String? ?? '';
+        final notificationType = extra['notificationType'] as String? ?? '';
+
+        return JournalNotificationDetailPage(
+          postId: postId,
+          commentId: commentId,
+          notificationType: notificationType,
+        );
+      },
+    ),
     StatefulShellRoute.indexedStack(
       pageBuilder: (context, state, navigationShell) {
         return RootPage(

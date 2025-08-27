@@ -200,11 +200,27 @@ class NotificationService {
 
     switch (type) {
       case 'like':
+        _navigateToNotificationDetails(
+          postId: data['journalId'] as String,
+          notificationType: 'like',
+        );
       case 'comment_like':
-        _navigateToJournal(data['journalId'] as String);
+        _navigateToNotificationDetails(
+          postId: data['journalId'] as String,
+          commentId: data['commentId'] as String? ?? '',
+          notificationType: 'comment_like',
+        );
       case 'comment':
+        _navigateToNotificationDetails(
+          postId: data['journalId'] as String,
+          notificationType: 'comment',
+        );
       case 'comment_reply':
-        _navigateToJournal(data['journalId'] as String);
+        _navigateToNotificationDetails(
+          postId: data['journalId'] as String,
+          commentId: data['parentCommentId'] as String? ?? '',
+          notificationType: 'comment_reply',
+        );
       case 'daily_reminder':
         _navigateToNewJournal();
     }
@@ -219,11 +235,27 @@ class NotificationService {
 
       switch (type) {
         case 'like':
+          _navigateToNotificationDetails(
+            postId: data['journalId'] as String,
+            notificationType: 'like',
+          );
         case 'comment_like':
-          _navigateToJournal(data['journalId'] as String);
+          _navigateToNotificationDetails(
+            postId: data['journalId'] as String,
+            commentId: data['commentId'] as String? ?? '',
+            notificationType: 'comment_like',
+          );
         case 'comment':
+          _navigateToNotificationDetails(
+            postId: data['journalId'] as String,
+            notificationType: 'comment',
+          );
         case 'comment_reply':
-          _navigateToJournal(data['journalId'] as String);
+          _navigateToNotificationDetails(
+            postId: data['journalId'] as String,
+            commentId: data['parentCommentId'] as String? ?? '',
+            notificationType: 'comment_reply',
+          );
         case 'daily_reminder':
           _navigateToNewJournal();
       }
@@ -764,11 +796,23 @@ class NotificationService {
     return '${text.substring(0, maxLength)}...';
   }
 
-  void _navigateToJournal(String? journalId) {
-    if (journalId != null) {
-      logman.info('Navigate to journal: $journalId');
-      router.push(Routes.home.path);
-    }
+  void _navigateToNotificationDetails({
+    required String postId,
+    String commentId = '',
+    required String notificationType,
+  }) {
+    logman.info(
+      'Navigate to notification details - PostId: $postId, CommentId: $commentId, Type: $notificationType',
+    );
+
+    router.push(
+      Routes.notificationDetails.path,
+      extra: {
+        'postId': postId,
+        'commentId': commentId,
+        'notificationType': notificationType,
+      },
+    );
   }
 
   void _navigateToNewJournal() {

@@ -47,7 +47,8 @@ class AuthRepository {
         throw Exception('Failed to authenticate with Firebase');
       }
 
-      final token = await _notificationService.getCurrentToken();
+      String token;
+      token = await _notificationService.getCurrentToken() ?? '';
 
       final userModel = UserModel(
         id: firebaseUser.uid,
@@ -56,12 +57,13 @@ class AuthRepository {
         avatarUrl: firebaseUser.photoURL ?? '',
         followers: [],
         following: [],
-        fcmTokens: [token!],
+        fcmTokens: [token],
       );
 
       await _userRepository.createOrUpdateUser(userModel);
-      await _initializeNotifications(firebaseUser.uid);
-
+      if (token.trim().isEmpty) {
+        await _initializeNotifications(firebaseUser.uid);
+      }
       return userModel;
     } on FirebaseAuthException catch (e) {
       logman.info('FirebaseAuthException: $e');
