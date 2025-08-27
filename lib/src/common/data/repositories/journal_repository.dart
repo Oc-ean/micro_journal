@@ -30,6 +30,42 @@ class JournalRepository {
         );
   }
 
+  Future<JournalModel?> getJournalById(String journalId) async {
+    try {
+      logman.info('Fetching journal with ID: $journalId');
+
+      final doc = await _firestore.collection('journals').doc(journalId).get();
+
+      if (!doc.exists) {
+        logman.info('Journal not found with ID: $journalId');
+        return null;
+      }
+
+      final data = doc.data();
+      if (data == null) {
+        logman.error('No data found for journal: $journalId');
+        return null;
+      }
+
+      final userId = data['userId'] as String?;
+      UserModel? user;
+
+      if (userId != null) {
+        final userDoc = await _firestore.collection('users').doc(userId).get();
+        if (userDoc.exists && userDoc.data() != null) {
+          user = UserModel.fromJson(userDoc.data()!);
+        }
+      }
+
+      final journal = JournalModel.fromJson(data).copyWith(user: user);
+      logman.info('Successfully fetched journal: $journalId');
+      return journal;
+    } catch (e, s) {
+      logman.error('Failed to fetch journal $journalId: $e', stackTrace: s);
+      return null;
+    }
+  }
+
   Future<void> createJournal(JournalModel journal) async {
     await _firestore
         .collection('journals')
@@ -182,19 +218,20 @@ class JournalRepository {
       final journal = JournalModel.fromJson(journalDoc.data()!);
       final journalOwnerId = journal.user?.id;
 
-      // if (journalOwnerId == null || journalOwnerId == userId) return;
-      print('it passed the user owner check ');
+      if (journalOwnerId == null || journalOwnerId == userId) return;
 
       final userDoc = await _firestore.collection('users').doc(userId).get();
       if (!userDoc.exists) return;
 
       final user = UserModel.fromJson(userDoc.data()!);
-
       final userName = user.username;
 
+      logman.info(
+        'Sending like notification for journal: $journalId , journalOwnerId: $journalOwnerId, likerUserId: $userId, likerUsername: $userName',
+      );
       await _notificationService.sendLikeNotification(
         journalId: journalId,
-        journalOwnerId: journalOwnerId!,
+        journalOwnerId: journalOwnerId,
         likerUserId: userId,
         likerUsername: userName,
       );

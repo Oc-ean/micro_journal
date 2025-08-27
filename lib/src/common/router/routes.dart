@@ -8,6 +8,7 @@ enum Routes {
   calendar('Calendar', '/calendar_journal'),
   settings('Settings', '/settings'),
   login('Login', '/login'),
+  notificationDetails('NotificationDetails', '/notification_details'),
   create('Create', '/create');
 
   final String name;

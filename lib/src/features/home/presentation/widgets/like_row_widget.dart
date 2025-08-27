@@ -51,7 +51,7 @@ class _LikeRowWidgetState extends State<LikeRowWidget>
         curve: Curves.easeInOut,
       ),
     );
-    _likesCubit = getIt<JournalLikesCubit>();
+    _likesCubit = JournalLikesCubit(getIt<JournalRepository>());
   }
 
   @override
