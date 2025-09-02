@@ -63,7 +63,6 @@ class NotificationService {
         _messaging = messaging ?? FirebaseMessaging.instance,
         _localNotifications =
             localNotifications ?? FlutterLocalNotificationsPlugin();
-
   static NotificationService get instance {
     _instance ??= NotificationService._();
     return _instance!;
@@ -112,6 +111,13 @@ class NotificationService {
       importance: Importance.high,
     );
 
+    const followChannel = AndroidNotificationChannel(
+      'follows_channel',
+      'Follows',
+      description: 'Notifications for follows',
+      importance: Importance.high,
+    );
+
     const reminderChannel = AndroidNotificationChannel(
       'reminders_channel',
       'Daily Reminders',
@@ -133,6 +139,11 @@ class NotificationService {
         .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(commentChannel);
+
+    await _localNotifications
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(followChannel);
 
     await _localNotifications
         .resolvePlatformSpecificImplementation<
@@ -215,11 +226,19 @@ class NotificationService {
           postId: data['journalId'] as String,
           notificationType: 'comment',
         );
+
       case 'comment_reply':
         _navigateToNotificationDetails(
           postId: data['journalId'] as String,
           commentId: data['parentCommentId'] as String? ?? '',
           notificationType: 'comment_reply',
+        );
+
+      case 'follow':
+        _navigateToNotificationDetails(
+          postId: data['journalId'] as String,
+          notificationType: 'follow',
+          followerId: data['followerId'] as String? ?? '',
         );
       case 'daily_reminder':
         _navigateToNewJournal();
@@ -256,6 +275,13 @@ class NotificationService {
             commentId: data['parentCommentId'] as String? ?? '',
             notificationType: 'comment_reply',
           );
+
+        case 'follow':
+          _navigateToNotificationDetails(
+            postId: data['journalId'] as String,
+            notificationType: 'follow',
+            followerId: data['followerId'] as String? ?? '',
+          );
         case 'daily_reminder':
           _navigateToNewJournal();
       }
@@ -278,6 +304,8 @@ class NotificationService {
       case 'comment':
       case 'comment_reply':
         channelId = 'comments_channel';
+      case 'follow':
+        channelId = 'follows_channel';
       case 'daily_reminder':
         channelId = 'reminders_channel';
       default:
@@ -291,7 +319,7 @@ class NotificationService {
       NotificationDetails(
         android: AndroidNotificationDetails(
           channelId,
-          _getChannelName(channelId),
+          getChannelName(channelId),
           importance: Importance.high,
           priority: Priority.high,
         ),
@@ -299,19 +327,6 @@ class NotificationService {
       ),
       payload: jsonEncode(data),
     );
-  }
-
-  String _getChannelName(String channelId) {
-    switch (channelId) {
-      case 'likes_channel':
-        return 'Likes & Comment Likes';
-      case 'comments_channel':
-        return 'Comments & Replies';
-      case 'reminders_channel':
-        return 'Daily Reminders';
-      default:
-        return 'general';
-    }
   }
 
   Future<String> _getAccessToken() async {
@@ -343,12 +358,28 @@ class NotificationService {
       final journal = JournalModel.fromJson(journalDoc.data()!);
       const title = 'New Like!';
       final body =
-          '$likerUsername liked your journal: "${_truncateText(journal.thoughts, 50)}"';
+          '$likerUsername liked your journal: "${truncateText(journal.thoughts, 50)}"';
       final data = {
         'type': 'like',
         'journalId': journalId,
         'likerId': likerUserId,
       };
+
+      final avatarUrl = await getUserAvatarUrl(likerUserId);
+
+      final notification = NotificationModel(
+        id: generateNotificationId(),
+        userId: journalOwnerId,
+        type: 'like',
+        title: title,
+        body: body,
+        data: data,
+        createdAt: DateTime.now(),
+        fromUserId: likerUserId,
+        fromUsername: likerUsername,
+        fromUserAvatar: avatarUrl,
+      );
+      await getIt<NotificationRepository>().saveNotification(notification);
 
       if (showLocal) {
         await _showLocalNotification(
@@ -394,7 +425,7 @@ class NotificationService {
 
       const title = 'New Comment Like! ❤️';
       final body =
-          '$likerUsername liked your comment: "${_truncateText(commentText, 50)}"';
+          '$likerUsername liked your comment: "${truncateText(commentText, 50)}"';
       final data = {
         'type': 'comment_like',
         'commentId': commentId,
@@ -402,6 +433,21 @@ class NotificationService {
         'likerId': likerUserId,
       };
 
+      final avatarUrl = await getUserAvatarUrl(likerUserId);
+
+      final notification = NotificationModel(
+        id: generateNotificationId(),
+        userId: commentOwnerId,
+        type: 'comment_like',
+        title: title,
+        body: body,
+        data: data,
+        createdAt: DateTime.now(),
+        fromUserId: likerUserId,
+        fromUsername: likerUsername,
+        fromUserAvatar: avatarUrl,
+      );
+      await getIt<NotificationRepository>().saveNotification(notification);
       if (showLocal) {
         await _showLocalNotification(
           id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
@@ -443,12 +489,29 @@ class NotificationService {
 
       const title = 'New Comment!';
       final body =
-          '$commenterUsername commented on your journal: "${_truncateText(commentText, 50)}"';
+          '$commenterUsername commented on your journal: "${truncateText(commentText, 50)}"';
       final data = {
         'type': 'comment',
         'journalId': journalId,
         'commenterId': commenterUserId,
       };
+
+      final avatarUrl = await getUserAvatarUrl(commenterUserId);
+
+      final notification = NotificationModel(
+        id: generateNotificationId(),
+        userId: journalOwnerId,
+        type: 'comment',
+        title: title,
+        body: body,
+        data: data,
+        createdAt: DateTime.now(),
+        fromUserId: commenterUserId,
+        fromUsername: commenterUsername,
+        fromUserAvatar: avatarUrl,
+      );
+
+      await getIt<NotificationRepository>().saveNotification(notification);
 
       if (showLocal) {
         await _showLocalNotification(
@@ -476,6 +539,122 @@ class NotificationService {
     }
   }
 
+  Future<void> sendFollowNotification({
+    required String targetUserId,
+    required String followerUserId,
+    required String followerUsername,
+    bool showLocal = false,
+  }) async {
+    try {
+      const title = 'New Follower! 👥';
+      final body = '$followerUsername started following you';
+      final data = {
+        'type': 'follow',
+        'followerId': followerUserId,
+        'targetUserId': targetUserId,
+      };
+
+      final avatarUrl = await getUserAvatarUrl(followerUserId);
+
+      final notification = NotificationModel(
+        id: generateNotificationId(),
+        userId: targetUserId,
+        type: 'follow',
+        title: title,
+        body: body,
+        data: data,
+        createdAt: DateTime.now(),
+        fromUserId: followerUserId,
+        fromUsername: followerUsername,
+        fromUserAvatar: avatarUrl,
+      );
+
+      await getIt<NotificationRepository>().saveNotification(notification);
+
+      if (showLocal) {
+        await _showLocalNotification(
+          id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+          title: title,
+          body: body,
+          channelId: 'follows_channel',
+          payload: jsonEncode(data),
+        );
+      } else {
+        final targetUserTokens = await _getUserFCMTokens(targetUserId);
+        if (targetUserTokens.isEmpty) return;
+
+        for (final token in targetUserTokens) {
+          await _sendFCMNotificationV1(
+            token: token,
+            title: title,
+            body: body,
+            data: data,
+          );
+        }
+      }
+    } catch (e) {
+      logman.error('Failed to send follow notification: $e');
+    }
+  }
+
+  Future<void> sendFollowAcceptedNotification({
+    required String targetUserId,
+    required String followerUserId,
+    required String followerUsername,
+    bool showLocal = false,
+  }) async {
+    try {
+      const title = 'Follow Request Accepted! 👥';
+      final body = '$followerUsername started following you';
+      final data = {
+        'type': 'follow_accepted',
+        'followerId': followerUserId,
+        'targetUserId': targetUserId,
+      };
+
+      final avatarUrl = await getUserAvatarUrl(followerUserId);
+
+      final notification = NotificationModel(
+        id: generateNotificationId(),
+        userId: targetUserId,
+        type: 'follow_accepted',
+        title: title,
+        body: body,
+        data: data,
+        createdAt: DateTime.now(),
+        fromUserId: followerUserId,
+        fromUsername: followerUsername,
+        fromUserAvatar: avatarUrl,
+      );
+
+      await getIt<NotificationRepository>().saveNotification(notification);
+
+      if (showLocal) {
+        await _showLocalNotification(
+          id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+          title: title,
+          body: body,
+          channelId: 'follows_channel',
+          payload: jsonEncode(data),
+        );
+      } else {
+        final targetUserTokens = await _getUserFCMTokens(targetUserId);
+        if (targetUserTokens.isEmpty) return;
+
+        for (final token in targetUserTokens) {
+          await _sendFCMNotificationV1(
+            token: token,
+            title: title,
+            body: body,
+            data: data,
+          );
+        }
+      }
+    } catch (e) {
+      logman.error('Failed to send follow notification: $e');
+    }
+  }
+
   Future<void> sendCommentReplyNotification({
     required String parentCommentId,
     required String parentCommentOwnerId,
@@ -495,13 +674,30 @@ class NotificationService {
 
       const title = 'New Reply! 💬';
       final body =
-          '$replierUsername replied to your comment: "${_truncateText(replyText, 50)}"';
+          '$replierUsername replied to your comment: "${truncateText(replyText, 50)}"';
       final data = {
         'type': 'comment_reply',
         'parentCommentId': parentCommentId,
         'journalId': journalId,
         'replierId': replierUserId,
       };
+
+      final avatarUrl = await getUserAvatarUrl(replierUserId);
+
+      final notification = NotificationModel(
+        id: generateNotificationId(),
+        userId: parentCommentOwnerId,
+        title: title,
+        body: body,
+        type: 'comment_reply',
+        data: data,
+        createdAt: DateTime.now(),
+        fromUserId: replierUserId,
+        fromUsername: replierUsername,
+        fromUserAvatar: avatarUrl,
+      );
+
+      await getIt<NotificationRepository>().saveNotification(notification);
 
       if (showLocal) {
         await _showLocalNotification(
@@ -575,7 +771,7 @@ class NotificationService {
       NotificationDetails(
         android: AndroidNotificationDetails(
           channelId,
-          _getChannelName(channelId),
+          getChannelName(channelId),
           importance: Importance.high,
           priority: Priority.high,
         ),
@@ -604,7 +800,7 @@ class NotificationService {
       NotificationDetails(
         android: AndroidNotificationDetails(
           channelId,
-          _getChannelName(channelId),
+          getChannelName(channelId),
           importance: Importance.high,
           priority: Priority.high,
         ),
@@ -729,17 +925,16 @@ class NotificationService {
           },
           'data': data,
           'android': {
-            'priority': 'HIGH', // Move priority to the main android object
+            'priority': 'HIGH',
             'notification': {
-              'channel_id': _getChannelIdFromType(data['type'] ?? 'general'),
-              // Add other Android-specific notification settings here
+              'channel_id': getChannelIdFromType(data['type'] ?? 'general'),
               'sound': 'default',
               'click_action': 'FLUTTER_NOTIFICATION_CLICK',
             },
           },
           'apns': {
             'headers': {
-              'apns-priority': '10', // High priority for iOS
+              'apns-priority': '10',
             },
             'payload': {
               'aps': {
@@ -776,30 +971,11 @@ class NotificationService {
     }
   }
 
-  String _getChannelIdFromType(String type) {
-    switch (type) {
-      case 'like':
-      case 'comment_like':
-        return 'likes_channel';
-      case 'comment':
-      case 'comment_reply':
-        return 'comments_channel';
-      case 'daily_reminder':
-        return 'reminders_channel';
-      default:
-        return 'general';
-    }
-  }
-
-  String _truncateText(String text, int maxLength) {
-    if (text.length <= maxLength) return text;
-    return '${text.substring(0, maxLength)}...';
-  }
-
   void _navigateToNotificationDetails({
     required String postId,
     String commentId = '',
     required String notificationType,
+    String? followerId,
   }) {
     logman.info(
       'Navigate to notification details - PostId: $postId, CommentId: $commentId, Type: $notificationType',
@@ -818,5 +994,19 @@ class NotificationService {
   void _navigateToNewJournal() {
     logman.info('Navigate to new journal page');
     router.push(Routes.home.path);
+  }
+
+  Future<String?> getUserAvatarUrl(String userId) async {
+    try {
+      final doc = await _firestore.collection('users').doc(userId).get();
+      if (doc.exists) {
+        final data = doc.data()!;
+        return data['avatarUrl'] as String?;
+      }
+      return null;
+    } catch (e) {
+      logman.error('Failed to get user avatar for $userId: $e');
+      return null;
+    }
   }
 }

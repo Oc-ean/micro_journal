@@ -10,16 +10,27 @@ void setupLocator() {
       () => InternetCubit(),
     )
     ..registerLazySingleton(
+      () => const CurrentAppThemeService(),
+    )
+    ..registerLazySingleton(
+      () => NotificationRepository(),
+    )
+    ..registerLazySingleton(
       () => AuthRepository(
         userRepository: getIt<UserRepository>(),
         notificationService: notificationService,
       ),
     )
     ..registerLazySingleton(
-      () => UserRepository(),
+      () => UserRepository(notificationService: notificationService),
     )
     ..registerLazySingleton(
       () => AuthCubit(authRepository: getIt<AuthRepository>()),
+    )
+    ..registerLazySingleton(
+      () => CurrentAppThemeCubit(
+        currentAppThemeService: getIt<CurrentAppThemeService>(),
+      ),
     )
     ..registerLazySingleton(
       () => UserProfileCubit(

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:micro_journal/src/common/common.dart';
 import 'package:micro_journal/src/features/features.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:solar_icons/solar_icons.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -67,6 +68,10 @@ class _HomePageState extends State<HomePage>
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () => _journalCubit.loadJournals(),
+          ),
+          IconButton(
+            icon: const Icon(SolarIconsBold.bell),
+            onPressed: () => context.push(Routes.notification.path),
           ),
         ],
       ),
@@ -155,6 +160,7 @@ class _HomePageState extends State<HomePage>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: context.theme.cardColor,
+        border: Border.all(color: context.theme.dividerColor),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(

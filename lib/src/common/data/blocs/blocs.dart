@@ -6,4 +6,6 @@ export 'internet_cubit/internet_cubit.dart';
 export 'journal_cubit/journal_cubit.dart';
 export 'journal_likes_cubit/journal_likes_cubit.dart';
 export 'journal_stats_cubit/journal_stats_cubit.dart';
+export 'notification_cubit/notification_cubit.dart';
+export 'theme_cubit/theme_cubit.dart';
 export 'user_profile_cubit/user_profile_cubit.dart';

@@ -21,14 +21,8 @@ class SupportTile extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: context.theme.cardColor,
+        border: Border.all(color: context.theme.dividerColor),
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            blurRadius: 2,
-            offset: const Offset(0, 1),
-          ),
-        ],
       ),
       child: Column(
         children: [
