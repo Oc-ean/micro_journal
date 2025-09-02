@@ -23,7 +23,7 @@ ThemeData lightTheme = ThemeData(
     ),
     iconTheme: const IconThemeData(color: Colors.black),
   ),
-  cardColor: lightCardColor,
+  cardColor: lightGrey,
   bottomNavigationBarTheme: BottomNavigationBarThemeData(
     backgroundColor: lightBG,
   ),
@@ -50,7 +50,7 @@ ThemeData darkTheme = ThemeData(
     primary: darkPrimary,
     brightness: Brightness.dark,
   ),
-  cardColor: darkCardColor,
+  cardColor: darkGrey,
   scaffoldBackgroundColor: darkBG,
   appBarTheme: AppBarTheme(
     backgroundColor: darkBG,

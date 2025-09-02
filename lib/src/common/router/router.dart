@@ -43,6 +43,11 @@ final router = GoRouter(
       builder: (context, state) => const CreateJournalPage(),
     ),
     GoRoute(
+      path: Routes.notification.path,
+      name: Routes.notification.name,
+      builder: (context, state) => const NotificationPage(),
+    ),
+    GoRoute(
       path: Routes.notificationDetails.path,
       name: Routes.notificationDetails.name,
       builder: (context, state) {

@@ -3,8 +3,8 @@ class UserModel {
   final String email;
   final String username;
   final String avatarUrl;
-  final List<UserModel> followers;
-  final List<UserModel> following;
+  final List<String> followers;
+  final List<String> following;
   final int journals;
   final bool enabledAnonymousSharing;
   final List<String> fcmTokens;
@@ -27,20 +27,8 @@ class UserModel {
       id: json['id'] as String,
       username: json['username'] as String,
       avatarUrl: json['avatarUrl'] as String,
-      followers: (json['followers'] as List<dynamic>?)
-              ?.map(
-                (follower) =>
-                    UserModel.fromJson(follower as Map<String, dynamic>),
-              )
-              .toList() ??
-          [],
-      following: (json['following'] as List<dynamic>?)
-              ?.map(
-                (following) =>
-                    UserModel.fromJson(following as Map<String, dynamic>),
-              )
-              .toList() ??
-          [],
+      followers: List<String>.from(json['followers'] as List? ?? []),
+      following: List<String>.from(json['following'] as List? ?? []),
       enabledAnonymousSharing:
           json['enabledAnonymousSharing'] as bool? ?? false,
       journals: json['journals'] as int? ?? 0,
@@ -54,8 +42,8 @@ class UserModel {
       'email': email,
       'username': username,
       'avatarUrl': avatarUrl,
-      'followers': followers.map((follower) => follower.toJson()).toList(),
-      'following': following.map((following) => following.toJson()).toList(),
+      'followers': followers,
+      'following': following,
       'enabledAnonymousSharing': enabledAnonymousSharing,
       'journals': journals,
       'fcmTokens': fcmTokens,
@@ -66,11 +54,11 @@ class UserModel {
   int get followingCount => following.length;
 
   bool isFollowing(String userId) {
-    return following.any((user) => user.id == userId);
+    return following.contains(userId);
   }
 
   bool isFollowedBy(String userId) {
-    return followers.any((user) => user.id == userId);
+    return followers.contains(userId);
   }
 
   factory UserModel.empty() {
@@ -79,8 +67,31 @@ class UserModel {
       email: '',
       username: '',
       avatarUrl: '',
-      followers: [],
-      following: [],
+    );
+  }
+
+  UserModel copyWith({
+    String? id,
+    String? email,
+    String? username,
+    String? avatarUrl,
+    List<String>? followers,
+    List<String>? following,
+    int? journals,
+    bool? enabledAnonymousSharing,
+    List<String>? fcmTokens,
+  }) {
+    return UserModel(
+      id: id ?? this.id,
+      email: email ?? this.email,
+      username: username ?? this.username,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      followers: followers ?? this.followers,
+      following: following ?? this.following,
+      enabledAnonymousSharing:
+          enabledAnonymousSharing ?? this.enabledAnonymousSharing,
+      fcmTokens: fcmTokens ?? this.fcmTokens,
+      journals: journals ?? this.journals,
     );
   }
 }

@@ -138,3 +138,45 @@ void showNoInternetPopup(BuildContext context) {
     ),
   );
 }
+
+String getChannelIdFromType(String type) {
+  switch (type) {
+    case 'like':
+    case 'comment_like':
+      return 'likes_channel';
+    case 'comment':
+    case 'comment_reply':
+      return 'comments_channel';
+    case 'follow':
+    case 'follow_accepted':
+      return 'follows_channel';
+    case 'daily_reminder':
+      return 'reminders_channel';
+    default:
+      return 'general';
+  }
+}
+
+String truncateText(String text, int maxLength) {
+  if (text.length <= maxLength) return text;
+  return '${text.substring(0, maxLength)}...';
+}
+
+String generateNotificationId() {
+  return '${DateTime.now().millisecondsSinceEpoch}_${DateTime.now().microsecond}';
+}
+
+String getChannelName(String channelId) {
+  switch (channelId) {
+    case 'likes_channel':
+      return 'Likes & Comment Likes';
+    case 'comments_channel':
+      return 'Comments & Replies';
+    case 'follows_channel':
+      return 'Follows & Follow Accepted';
+    case 'reminders_channel':
+      return 'Daily Reminders';
+    default:
+      return 'general';
+  }
+}

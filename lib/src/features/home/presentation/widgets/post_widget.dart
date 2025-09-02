@@ -21,6 +21,7 @@ class PostWidget extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: context.theme.cardColor,
+        border: Border.all(color: context.theme.dividerColor),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(

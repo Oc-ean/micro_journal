@@ -39,14 +39,8 @@ class _ProfileSectionTileState extends State<ProfileSectionTile> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: context.theme.cardColor,
+              border: Border.all(color: context.theme.dividerColor),
               borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withValues(alpha: 0.1),
-                  blurRadius: 2,
-                  offset: const Offset(0, 1),
-                ),
-              ],
             ),
             child: Row(
               children: [

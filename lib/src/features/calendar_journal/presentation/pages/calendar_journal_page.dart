@@ -91,7 +91,8 @@ class _CalendarJournalPageState extends State<CalendarJournalPage> {
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
+                  color: context.theme.cardColor,
+                  border: Border.all(color: context.theme.dividerColor),
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(

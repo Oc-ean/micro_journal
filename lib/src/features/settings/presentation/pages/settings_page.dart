@@ -41,11 +41,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   notificationsEnabled = value;
                 });
               },
-              onEmailNotificationsChanged: (value) {
-                setState(() {
-                  emailNotifications = value;
-                });
-              },
             ),
             const SizedBox(height: 24),
             _buildSectionTitle(context, 'Privacy & Security'),

@@ -59,13 +59,7 @@ class StatCard extends StatelessWidget {
     return BoxDecoration(
       color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(12),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.grey.withValues(alpha: 0.1),
-          blurRadius: 4,
-          offset: const Offset(0, 2),
-        ),
-      ],
+      border: Border.all(color: Theme.of(context).dividerColor),
     );
   }
 }
