@@ -58,7 +58,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 _showAnonymousDialog(value);
               },
               onSharingOptionsTap: _showSharingOptions,
-              onExportDataTap: _exportData,
             ),
             const SizedBox(height: 24),
             _buildSectionTitle(context, 'Support'),
@@ -100,15 +99,11 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void _navigateToDataPrivacy() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Navigate to Data & Privacy')),
-    );
+    context.showSnackBarUsingText('Navigate to Data & Privacy');
   }
 
   void _navigateToHelp() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Navigate to Help Center')),
-    );
+    context.showSnackBarUsingText('Navigate to Help Center');
   }
 
   void _showSharingOptions() {
@@ -169,36 +164,8 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-  void _exportData() {
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Export Data'),
-        content:
-            const Text('Your journal entries will be exported as a PDF file.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Exporting data...')),
-              );
-            },
-            child: const Text('Export'),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _sendFeedback() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Opening feedback form...')),
-    );
+    context.showSnackBarUsingText('Opening feedback form...');
   }
 
   void _showAbout() {
@@ -241,9 +208,7 @@ class _SettingsPageState extends State<SettingsPage> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Signed out successfully')),
-              );
+              context.showSnackBarUsingText('Signed out successfully');
             },
             child: const Text('Sign Out'),
           ),

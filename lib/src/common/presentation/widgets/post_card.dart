@@ -3,12 +3,12 @@ import 'package:micro_journal/src/common/common.dart';
 import 'package:micro_journal/src/features/features.dart';
 import 'package:solar_icons/solar_icons.dart';
 
-class PostWidget extends StatelessWidget {
+class PostCard extends StatelessWidget {
   final JournalModel journal;
   final String currentUserId;
   final VoidCallback? onComment;
 
-  const PostWidget({
+  const PostCard({
     super.key,
     required this.journal,
     required this.currentUserId,
@@ -29,11 +29,29 @@ class PostWidget extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (journal.user?.avatarUrl == null)
-                Text(journal.user!.username.substring(0, 1))
+              if (journal.isAnonymous)
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: context.theme.primaryColor,
+                  child: Text(
+                    journal.user!.username.substring(0, 1),
+                    style: context.textTheme.titleLarge
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                )
+              else if (journal.user?.avatarUrl == null)
+                CircleAvatar(
+                  radius: 20,
+                  child: Text(
+                    journal.user!.username.substring(0, 1),
+                    style: context.textTheme.titleLarge
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                )
               else
                 CircleAvatar(
                   radius: 20,
+                  backgroundColor: context.theme.primaryColor,
                   backgroundImage: NetworkImage(journal.user!.avatarUrl),
                 ),
               const SizedBox(width: 15),
@@ -135,7 +153,7 @@ class PostWidget extends StatelessWidget {
               decoration: BoxDecoration(
                 color: context.theme.cardColor,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey[200]!),
+                border: Border.all(color: context.theme.dividerColor),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

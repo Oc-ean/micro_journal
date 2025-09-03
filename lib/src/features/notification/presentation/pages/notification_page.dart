@@ -23,7 +23,8 @@ class _NotificationPageState extends State<NotificationPage> {
   void initState() {
     super.initState();
     _notificationCubit = NotificationCubit(
-        notificationRepository: getIt<NotificationRepository>(),);
+      notificationRepository: getIt<NotificationRepository>(),
+    );
     _authRepository = getIt<AuthRepository>();
     final userId = _authRepository.currentUser?.uid;
     _notificationCubit.initialize(userId!);
@@ -360,6 +361,14 @@ class _NotificationPageState extends State<NotificationPage> {
       context.push(
         Routes.notificationDetails.path,
         extra: extraData,
+      );
+    } else {
+      context.push(
+        Routes.follow.path,
+        extra: {
+          'userId': notification.fromUserId,
+          'isFromNotificationPage': true,
+        },
       );
     }
   }

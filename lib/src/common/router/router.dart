@@ -48,6 +48,20 @@ final router = GoRouter(
       builder: (context, state) => const NotificationPage(),
     ),
     GoRoute(
+      path: Routes.follow.path,
+      name: Routes.follow.name,
+      builder: (context, state) {
+        final extra = state.extra as Map<dynamic, dynamic>? ?? {};
+        final userId = extra['userId'] as String? ?? '';
+        final isFromNotificationPage =
+            extra['isFromNotificationPage'] as bool? ?? false;
+        return FollowPage(
+          userId: userId,
+          isFromNotificationPage: isFromNotificationPage,
+        );
+      },
+    ),
+    GoRoute(
       path: Routes.notificationDetails.path,
       name: Routes.notificationDetails.name,
       builder: (context, state) {

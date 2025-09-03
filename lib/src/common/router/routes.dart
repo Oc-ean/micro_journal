@@ -10,6 +10,7 @@ enum Routes {
   login('Login', '/login'),
   notification('Notification', '/notification'),
   notificationDetails('NotificationDetails', '/notification_details'),
+  follow('Follow', '/follow'),
   create('Create', '/create');
 
   final String name;

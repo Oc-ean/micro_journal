@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:micro_journal/src/common/common.dart';
-import 'package:micro_journal/src/features/features.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class ProfileSectionTile extends StatefulWidget {

@@ -7,7 +7,6 @@ class NotificationRepository {
   NotificationRepository({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance;
 
-  /// Save a notification to Firebase
   Future<void> saveNotification(NotificationModel notification) async {
     try {
       await _firestore
@@ -22,7 +21,6 @@ class NotificationRepository {
     }
   }
 
-  /// Get all notifications for a user
   Future<List<NotificationModel>> getUserNotifications(
     String userId, {
     int limit = 50,
@@ -32,7 +30,6 @@ class NotificationRepository {
       Query query = _firestore
           .collection('notifications')
           .where('userId', isEqualTo: userId)
-          // Remove orderBy or handle differently
           .limit(limit);
 
       if (lastDocument != null) {
@@ -41,7 +38,6 @@ class NotificationRepository {
 
       final QuerySnapshot snapshot = await query.get();
 
-      // Sort locally instead
       final notifications = snapshot.docs
           .map((doc) {
             final data = doc.data();
@@ -63,7 +59,6 @@ class NotificationRepository {
     }
   }
 
-  /// Mark notification as read
   Future<void> markNotificationAsRead(String notificationId) async {
     try {
       await _firestore
@@ -75,7 +70,6 @@ class NotificationRepository {
     }
   }
 
-  /// Mark all notifications as read for a user
   Future<void> markAllNotificationsAsRead(String userId) async {
     try {
       final batch = _firestore.batch();
@@ -96,7 +90,6 @@ class NotificationRepository {
     }
   }
 
-  /// Get unread notification count
   Future<int> getUnreadNotificationCount(String userId) async {
     try {
       final snapshot = await _firestore
@@ -116,7 +109,6 @@ class NotificationRepository {
     }
   }
 
-  /// Delete notification
   Future<void> deleteNotification(String notificationId) async {
     try {
       await _firestore.collection('notifications').doc(notificationId).delete();
@@ -125,7 +117,6 @@ class NotificationRepository {
     }
   }
 
-  /// Stream of user notifications (for real-time updates)
   Stream<List<NotificationModel>> streamUserNotifications(
     String userId, {
     int limit = 20,
@@ -145,7 +136,6 @@ class NotificationRepository {
     });
   }
 
-  /// Delete old notifications (cleanup utility)
   Future<void> deleteOldNotifications(String userId, {int daysOld = 30}) async {
     try {
       final cutoffDate = DateTime.now().subtract(Duration(days: daysOld));

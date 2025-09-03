@@ -180,3 +180,18 @@ String getChannelName(String channelId) {
       return 'general';
   }
 }
+
+String getEmptyFilterMessage(JournalFilter selectedFilter) {
+  switch (selectedFilter) {
+    case JournalFilter.anonymous:
+      return 'No anonymous journals found.\nTry a different filter or check back later.';
+    case JournalFilter.following:
+      return 'No journals from people you follow.\nFollow more users or try a different filter.';
+    case JournalFilter.mine:
+      return 'You haven\'t written any journals yet.\nTap "Start writing" to create your first journal.';
+    case JournalFilter.all:
+      return 'No journals found.';
+  }
+}
+
+

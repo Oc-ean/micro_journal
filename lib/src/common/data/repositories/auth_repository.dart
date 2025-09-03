@@ -47,14 +47,20 @@ class AuthRepository {
 
       await _notificationService.initialize();
 
-      final String? token = await _notificationService.getCurrentToken();
+      final String? savedToken = await AppPreferences.getCurrentDeviceToken();
+      final bool hasExistingToken = savedToken != null && savedToken.isNotEmpty;
+
+      final String? newToken = hasExistingToken
+          ? null
+          : await _notificationService.getCurrentToken();
 
       final existingUser = await _userRepository.getUserData(firebaseUser.uid);
 
       UserModel userModel;
       if (existingUser != null) {
-        if (token != null && token.isNotEmpty) {
+        if (!hasExistingToken && newToken != null && newToken.isNotEmpty) {
           await _notificationService.assignTokenToUser(firebaseUser.uid);
+          await AppPreferences.setCurrentDeviceToken(newToken);
         }
         userModel = existingUser;
       } else {
@@ -65,12 +71,19 @@ class AuthRepository {
           avatarUrl: firebaseUser.photoURL ?? '',
           followers: [],
           following: [],
-          fcmTokens: token != null && token.isNotEmpty ? [token] : [],
+          fcmTokens:
+              (!hasExistingToken && newToken != null && newToken.isNotEmpty)
+                  ? [newToken]
+                  : [],
         );
         await _userRepository.createOrUpdateUser(userModel);
+
+        if (!hasExistingToken && newToken != null && newToken.isNotEmpty) {
+          await AppPreferences.setCurrentDeviceToken(newToken);
+        }
       }
 
-      if (token == null || token.isEmpty) {
+      if (!hasExistingToken && (newToken == null || newToken.isEmpty)) {
         await _initializeNotifications(firebaseUser.uid);
       }
 
@@ -86,22 +99,30 @@ class AuthRepository {
 
   Future<void> _initializeNotifications(String userId) async {
     try {
-      await _notificationService.initialize();
-      await _notificationService.assignTokenToUser(userId);
-      logman.info('Notifications initialized for user: $userId');
+      final String? token = await _notificationService.getCurrentToken();
+      if (token != null && token.isNotEmpty) {
+        await _notificationService.assignTokenToUser(userId);
+        await AppPreferences.setCurrentDeviceToken(token);
+        logman.info('Notifications initialized for user: $userId');
+      }
     } catch (e) {
       logman.error('Failed to initialize notifications: $e');
     }
   }
 
-  /// To ensure FCM token is up to date
   Future<void> refreshFCMToken() async {
     try {
       final user = currentUser;
       if (user != null) {
-        final currentToken = await _notificationService.getCurrentToken();
-        if (currentToken != null && currentToken.isNotEmpty) {
+        final String? savedToken = await AppPreferences.getCurrentDeviceToken();
+        final String? currentToken =
+            await _notificationService.getCurrentToken();
+
+        if (currentToken != null &&
+            currentToken.isNotEmpty &&
+            currentToken != savedToken) {
           await _notificationService.assignTokenToUser(user.uid);
+          await AppPreferences.setCurrentDeviceToken(currentToken);
           logman.info('FCM token refreshed for user: ${user.uid}');
         }
       }
@@ -110,16 +131,17 @@ class AuthRepository {
     }
   }
 
-  ///  clean up tokens
   Future<void> signOut() async {
     try {
       final user = currentUser;
 
       if (user != null) {
-        final currentToken = await _notificationService.getCurrentToken();
-        if (currentToken != null) {
-          await _userRepository.removeFCMToken(user.uid, currentToken);
+        final String? savedToken = await AppPreferences.getCurrentDeviceToken();
+        if (savedToken != null) {
+          await _userRepository.removeFCMToken(user.uid, savedToken);
         }
+
+        await AppPreferences.setCurrentDeviceToken('');
       }
 
       await Future.wait([
@@ -131,6 +153,29 @@ class AuthRepository {
     } catch (e) {
       logman.error('Failed to sign out: $e');
       throw Exception('Failed to sign out: $e');
+    }
+  }
+
+  Future<void> onTokenRefresh(String newToken) async {
+    try {
+      final user = currentUser;
+      if (user != null) {
+        final String? savedToken = await AppPreferences.getCurrentDeviceToken();
+
+        if (newToken != savedToken) {
+          if (savedToken != null) {
+            await _userRepository.removeFCMToken(user.uid, savedToken);
+          }
+
+          await _notificationService.assignTokenToUser(user.uid);
+          await AppPreferences.setCurrentDeviceToken(newToken);
+
+          logman
+              .info('FCM token refreshed automatically for user: ${user.uid}');
+        }
+      }
+    } catch (e) {
+      logman.error('Failed to handle token refresh: $e');
     }
   }
 }

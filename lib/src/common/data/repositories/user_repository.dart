@@ -7,11 +7,11 @@ class UserRepository {
   final FirebaseAuth _firebaseAuth;
   final NotificationService _notificationService;
 
-  UserRepository(
-      {FirebaseFirestore? firestore,
-      FirebaseAuth? firebaseAuth,
-      required NotificationService notificationService,})
-      : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
+  UserRepository({
+    FirebaseFirestore? firestore,
+    FirebaseAuth? firebaseAuth,
+    required NotificationService notificationService,
+  })  : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
         _firestore = firestore ?? FirebaseFirestore.instance,
         _notificationService = notificationService;
 
@@ -143,8 +143,19 @@ class UserRepository {
     }
   }
 
-  Future<void> followUser(String currentUserId, String targetUserId) async {
+  Future<bool> followUser(String currentUserId, String targetUserId) async {
     try {
+      final currentUserData = await getUserData(currentUserId);
+
+      final isFollowRequestPending =
+          currentUserData?.followers.contains(targetUserId) == true;
+
+      if (isFollowRequestPending) {
+        logman.info(
+          'Accepting existing follow request from $targetUserId to $currentUserId',
+        );
+        return await acceptFollowRequest(currentUserId, targetUserId);
+      }
       final batch = _firestore.batch();
 
       batch.update(
@@ -166,7 +177,6 @@ class UserRepository {
       await batch.commit();
       logman.info('User $currentUserId started following $targetUserId');
 
-      // Fetch current user's username to include in notification
       final currentUser = await getUserData(currentUserId);
       if (currentUser != null) {
         await _notificationService.sendFollowNotification(
@@ -175,15 +185,18 @@ class UserRepository {
           followerUsername: currentUser.username,
         );
       }
+
+      return true;
     } catch (e) {
       logman.error('Failed to follow user: $e');
-      rethrow;
+      return false;
     }
   }
 
-  /// Accept a follow request and trigger follow accepted notification
-  Future<void> acceptFollowRequest(
-      String currentUserId, String targetUserId,) async {
+  Future<bool> acceptFollowRequest(
+    String currentUserId,
+    String targetUserId,
+  ) async {
     try {
       final batch = _firestore.batch();
 
@@ -204,10 +217,10 @@ class UserRepository {
       );
 
       await batch.commit();
-      logman
-          .info('User $targetUserId follow request accepted by $currentUserId');
+      logman.info(
+        'User $targetUserId follow request accepted by $currentUserId',
+      );
 
-      // Fetch accepting user’s username to include in notification
       final currentUser = await getUserData(currentUserId);
       if (currentUser != null) {
         await _notificationService.sendFollowAcceptedNotification(
@@ -216,14 +229,15 @@ class UserRepository {
           followerUsername: currentUser.username,
         );
       }
+
+      return true;
     } catch (e) {
       logman.error('Failed to accept follow request: $e');
-      rethrow;
+      return false;
     }
   }
 
-  /// Unfollow a user
-  Future<void> unfollowUser(String currentUserId, String targetUserId) async {
+  Future<bool> unfollowUser(String currentUserId, String targetUserId) async {
     try {
       final batch = _firestore.batch();
 
@@ -245,13 +259,13 @@ class UserRepository {
 
       await batch.commit();
       logman.info('User $currentUserId unfollowed $targetUserId');
+      return true;
     } catch (e) {
       logman.error('Failed to unfollow user: $e');
-      rethrow;
+      return false;
     }
   }
 
-  /// Check if current user is following target user
   Future<bool> isFollowing(String currentUserId, String targetUserId) async {
     try {
       final doc = await _firestore.collection('users').doc(currentUserId).get();
@@ -267,7 +281,6 @@ class UserRepository {
     }
   }
 
-  /// Get followers list
   Future<List<UserModel>> getFollowers(String userId) async {
     try {
       final doc = await _firestore.collection('users').doc(userId).get();
@@ -288,7 +301,6 @@ class UserRepository {
     }
   }
 
-  /// Get following list
   Future<List<UserModel>> getFollowing(String userId) async {
     try {
       final doc = await _firestore.collection('users').doc(userId).get();
@@ -306,6 +318,26 @@ class UserRepository {
       return [];
     } catch (e) {
       logman.error('Failed to get following: $e');
+      return [];
+    }
+  }
+
+  Future<List<JournalModel>> getRecentUserPosts(String userId) async {
+    try {
+      final snapshot = await _firestore
+          .collection('journals')
+          .where('user.id', isEqualTo: userId)
+          .get();
+
+      final journals = snapshot.docs.map((doc) {
+        return JournalModel.fromJson(doc.data());
+      }).toList();
+
+      journals.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      logman.info('Recent posts for user $userId: ${journals.length}');
+      return journals.take(3).toList();
+    } catch (e) {
+      logman.error('Failed to get recent posts for user $userId: $e');
       return [];
     }
   }

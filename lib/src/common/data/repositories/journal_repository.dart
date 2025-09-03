@@ -67,10 +67,18 @@ class JournalRepository {
   }
 
   Future<void> createJournal(JournalModel journal) async {
-    await _firestore
-        .collection('journals')
-        .doc(journal.id)
-        .set(journal.toJson());
+    final userRef = _firestore.collection('users').doc(journal.user!.id);
+    final journalRef = _firestore.collection('journals').doc(journal.id);
+
+    final batch = _firestore.batch();
+    batch.set(journalRef, journal.toJson());
+
+    batch.update(userRef, {
+      'journals': FieldValue.increment(1),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+
+    await batch.commit();
   }
 
   Future<void> updateJournal(JournalModel journal) async {
@@ -181,8 +189,6 @@ class JournalRepository {
       'likes': FieldValue.arrayRemove([userId]),
     });
   }
-
-  /// send notifications...
 
   Future<void> _sendCommentNotification(CommentModel comment) async {
     try {
