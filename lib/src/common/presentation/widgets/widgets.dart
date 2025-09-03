@@ -5,3 +5,5 @@ export 'custom_error_widget.dart';
 export 'custom_form_field.dart';
 export 'custom_image.dart';
 export 'no_internet_pop_up.dart';
+export 'post_card.dart';
+export 'profile_info_row.dart';

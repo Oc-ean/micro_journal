@@ -980,15 +980,28 @@ class NotificationService {
     logman.info(
       'Navigate to notification details - PostId: $postId, CommentId: $commentId, Type: $notificationType',
     );
-
-    router.push(
-      Routes.notificationDetails.path,
-      extra: {
+    if (notificationType == 'like' || notificationType == 'comment') {
+      final extraData = {
         'postId': postId,
-        'commentId': commentId,
         'notificationType': notificationType,
-      },
-    );
+      };
+
+      if (commentId.trim().isNotEmpty) {
+        extraData['commentId'] = commentId;
+      }
+      router.push(
+        Routes.notificationDetails.path,
+        extra: extraData,
+      );
+    } else {
+      router.push(
+        Routes.follow.path,
+        extra: {
+          'userId': followerId,
+          'isFromNotificationPage': true,
+        },
+      );
+    }
   }
 
   void _navigateToNewJournal() {

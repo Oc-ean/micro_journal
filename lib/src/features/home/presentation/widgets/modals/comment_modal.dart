@@ -4,6 +4,7 @@ import 'package:micro_journal/src/common/common.dart';
 import 'package:micro_journal/src/features/features.dart';
 import 'package:micro_journal/src/features/home/presentation/widgets/comment_item_widget.dart';
 import 'package:reactive_forms/reactive_forms.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:solar_icons/solar_icons.dart';
 
 class CommentsModalSheet extends StatefulWidget {
@@ -273,23 +274,26 @@ class _CommentsModalSheetState extends State<CommentsModalSheet> {
                       comments.where((c) => c.parentCommentId == null).toList();
                   parentComments
                       .sort((a, b) => a.createdAt.compareTo(b.createdAt));
-                  return ListView.builder(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    itemCount: parentComments.length,
-                    itemBuilder: (context, index) {
-                      final parentComment = parentComments[index];
-                      final replies = commentGroups[parentComment.id] ?? [];
+                  return Skeletonizer(
+                    enabled: state is CommentsLoading,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      itemCount: parentComments.length,
+                      itemBuilder: (context, index) {
+                        final parentComment = parentComments[index];
+                        final replies = commentGroups[parentComment.id] ?? [];
 
-                      return CommentItemWidget(
-                        comment: parentComment,
-                        replies: replies,
-                        currentUserId: userId,
-                        onReply: _handleReply,
-                      );
-                    },
+                        return CommentItemWidget(
+                          comment: parentComment,
+                          replies: replies,
+                          currentUserId: userId,
+                          onReply: _handleReply,
+                        );
+                      },
+                    ),
                   );
                 },
               ),
@@ -346,10 +350,10 @@ class _CommentsModalSheetState extends State<CommentsModalSheet> {
               child: SafeArea(
                 child: Row(
                   children: [
-                    const CircleAvatar(
+                    CircleAvatar(
                       radius: 16,
                       backgroundImage: NetworkImage(
-                        'https://images.pexels.com/photos/1321942/pexels-photo-1321942.jpeg',
+                        getIt<AuthRepository>().currentUser!.photoURL!,
                       ),
                     ),
                     const SizedBox(width: 12),

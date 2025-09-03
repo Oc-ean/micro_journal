@@ -274,7 +274,7 @@ class _JournalNotificationDetailPageState
                                 )
                               : null,
                         ),
-                        child: PostWidget(
+                        child: PostCard(
                           journal: _journal!,
                           currentUserId: currentUserId,
                           onComment: _openCommentsModal,

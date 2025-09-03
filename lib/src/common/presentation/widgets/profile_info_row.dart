@@ -19,14 +19,16 @@ class ProfileInfoRow extends StatelessWidget {
           subtitle,
           style: context.theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
-            fontSize: 18,
+            fontSize: 19,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           title,
           style: context.theme.textTheme.bodySmall?.copyWith(
-            color: Colors.grey[600],
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+            color: Colors.grey[400],
           ),
         ),
       ],
