@@ -4,11 +4,8 @@ import 'package:micro_journal/src/common/common.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class ProfileSectionTile extends StatefulWidget {
-  final VoidCallback onEditProfile;
-
   const ProfileSectionTile({
     super.key,
-    required this.onEditProfile,
   });
 
   @override
@@ -69,23 +66,14 @@ class _ProfileSectionTileState extends State<ProfileSectionTile> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            user.username,
-                            style:
-                                context.theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: widget.onEditProfile,
-                            child: const Text('Edit'),
-                          ),
-                        ],
+                      Text(
+                        user.username,
+                        style: context.theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
                       ),
+                      const SizedBox(height: 4),
                       Text(
                         user.email,
                         style: context.theme.textTheme.bodyMedium?.copyWith(

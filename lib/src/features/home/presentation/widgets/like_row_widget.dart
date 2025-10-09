@@ -60,8 +60,8 @@ class _LikeRowWidgetState extends State<LikeRowWidget>
     super.dispose();
   }
 
-  void _onLikeTap() {
-    if (widget.isLiked) {
+  void _onLikeTap(bool isLiked) {
+    if (isLiked) {
       _likesCubit.unlikeJournal(widget.journalId, widget.userId);
     } else {
       _likesCubit.likeJournal(widget.journalId, widget.userId);
@@ -88,10 +88,18 @@ class _LikeRowWidgetState extends State<LikeRowWidget>
       child: BlocBuilder<JournalLikesCubit, JournalLikesState>(
         bloc: _likesCubit,
         builder: (context, state) {
-          final isLoading = state is JournalLikesLoading;
-
+          final isLoading = state is JournalLikesLoading &&
+              state.journalId == widget.journalId;
+          final isLiked = state is JournalLikesSuccess &&
+                  state.journalId == widget.journalId
+              ? state.isLiked
+              : widget.isLiked;
           return GestureDetector(
-            onTap: isLoading ? null : _onLikeTap,
+            onTap: isLoading
+                ? null
+                : () {
+                    _onLikeTap(isLiked);
+                  },
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

@@ -9,13 +9,21 @@ abstract class JournalLikesState extends Equatable {
 
 class JournalLikesInitial extends JournalLikesState {}
 
-class JournalLikesLoading extends JournalLikesState {}
-
-class JournalLikesSuccess extends JournalLikesState {
-  const JournalLikesSuccess();
+class JournalLikesLoading extends JournalLikesState {
+  final String journalId;
+  const JournalLikesLoading(this.journalId);
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [journalId];
+}
+
+class JournalLikesSuccess extends JournalLikesState {
+  final String journalId;
+  final bool isLiked;
+  const JournalLikesSuccess(this.journalId, this.isLiked);
+
+  @override
+  List<Object?> get props => [journalId, isLiked];
 }
 
 class JournalLikesError extends JournalLikesState {

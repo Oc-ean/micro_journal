@@ -75,6 +75,34 @@ class UserRepository {
     }
   }
 
+  Future<void> togglePushNotifications(String userId, bool isEnabled) async {
+    try {
+      await _firestore.collection('users').doc(userId).update({
+        'enablePushNotifications': isEnabled,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      logman.info('Push notifications updated for $userId: $isEnabled');
+    } catch (e) {
+      logman.error('Failed to toggle push notifications: $e');
+      throw Exception('Failed to toggle push notifications: $e');
+    }
+  }
+
+  Future<void> toggleAnonymousSharing(String userId, bool isEnabled) async {
+    try {
+      await _firestore.collection('users').doc(userId).update({
+        'enabledAnonymousSharing': isEnabled,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      logman.info('Anonymous sharing updated for $userId: $isEnabled');
+    } catch (e) {
+      logman.error('Failed to toggle anonymous sharing: $e');
+      throw Exception('Failed to toggle anonymous sharing: $e');
+    }
+  }
+
   Future<void> deleteAccount() async {
     try {
       final user = _firebaseAuth.currentUser;
