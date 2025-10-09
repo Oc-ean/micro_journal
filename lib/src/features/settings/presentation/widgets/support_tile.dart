@@ -27,14 +27,6 @@ class SupportTile extends StatelessWidget {
       child: Column(
         children: [
           SettingsTile(
-            icon: Icons.help_outline,
-            title: 'Help Center',
-            subtitle: 'Get help and support',
-            trailing: const Icon(Icons.chevron_right),
-            onTap: onHelpTap,
-          ),
-          const Divider(height: 1),
-          SettingsTile(
             icon: Icons.feedback_outlined,
             title: 'Send Feedback',
             subtitle: 'Share your thoughts with us',

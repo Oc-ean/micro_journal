@@ -5,14 +5,14 @@ import 'package:micro_journal/src/features/features.dart';
 
 class SharingTile extends StatelessWidget {
   final bool anonymousSharing;
-  final ValueChanged<bool> onAnonymousSharingChanged;
-  final VoidCallback onSharingOptionsTap;
+  final ValueChanged<bool>? onAnonymousSharingChanged;
+  final VoidCallback? onSharingOptionsTap;
 
   const SharingTile({
     super.key,
     required this.anonymousSharing,
-    required this.onAnonymousSharingChanged,
-    required this.onSharingOptionsTap,
+    this.onAnonymousSharingChanged,
+    this.onSharingOptionsTap,
   });
 
   @override
@@ -33,14 +33,6 @@ class SharingTile extends StatelessWidget {
               value: anonymousSharing,
               onChanged: onAnonymousSharingChanged,
             ),
-          ),
-          const Divider(height: 1),
-          SettingsTile(
-            icon: Icons.share_outlined,
-            title: 'Default Sharing',
-            subtitle: 'Set default privacy for new entries',
-            trailing: const Icon(Icons.chevron_right),
-            onTap: onSharingOptionsTap,
           ),
         ],
       ),

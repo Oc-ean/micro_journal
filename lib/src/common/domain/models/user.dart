@@ -7,6 +7,8 @@ class UserModel {
   final List<String> following;
   final int journals;
   final bool enabledAnonymousSharing;
+  final bool enablePushNotifications;
+  final bool systemNotificationsEnabled;
   final List<String> fcmTokens;
 
   UserModel({
@@ -19,6 +21,8 @@ class UserModel {
     this.fcmTokens = const [],
     this.journals = 0,
     this.enabledAnonymousSharing = false,
+    this.enablePushNotifications = false,
+    this.systemNotificationsEnabled = false,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -31,6 +35,10 @@ class UserModel {
       following: List<String>.from(json['following'] as List? ?? []),
       enabledAnonymousSharing:
           json['enabledAnonymousSharing'] as bool? ?? false,
+      enablePushNotifications:
+          json['enablePushNotifications'] as bool? ?? false,
+      systemNotificationsEnabled:
+          json['systemNotificationsEnabled'] as bool? ?? false,
       journals: json['journals'] as int? ?? 0,
       fcmTokens: List<String>.from(json['fcmTokens'] as List? ?? []),
     );
@@ -45,6 +53,8 @@ class UserModel {
       'followers': followers,
       'following': following,
       'enabledAnonymousSharing': enabledAnonymousSharing,
+      'enablePushNotifications': enablePushNotifications,
+      'systemNotificationsEnabled': systemNotificationsEnabled,
       'journals': journals,
       'fcmTokens': fcmTokens,
     };
@@ -79,6 +89,8 @@ class UserModel {
     List<String>? following,
     int? journals,
     bool? enabledAnonymousSharing,
+    bool? enablePushNotifications,
+    bool? systemNotificationsEnabled,
     List<String>? fcmTokens,
   }) {
     return UserModel(
@@ -92,6 +104,10 @@ class UserModel {
           enabledAnonymousSharing ?? this.enabledAnonymousSharing,
       fcmTokens: fcmTokens ?? this.fcmTokens,
       journals: journals ?? this.journals,
+      enablePushNotifications:
+          enablePushNotifications ?? this.enablePushNotifications,
+      systemNotificationsEnabled:
+          systemNotificationsEnabled ?? this.systemNotificationsEnabled,
     );
   }
 }

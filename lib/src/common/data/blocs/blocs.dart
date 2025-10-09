@@ -2,6 +2,7 @@ export 'auth_cubit/auth_cubit.dart';
 export 'calendar_cubit/calendar_cubit.dart';
 export 'comment_likes_cubit/comments_likes_cubit.dart';
 export 'comments_cubit/comments_cubit.dart';
+export 'feedback/feedback_cubit.dart';
 export 'follow_cubit/follow_cubit.dart';
 export 'internet_cubit/internet_cubit.dart';
 export 'journal_cubit/journal_cubit.dart';

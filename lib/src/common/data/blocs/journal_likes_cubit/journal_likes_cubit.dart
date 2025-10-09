@@ -13,9 +13,9 @@ class JournalLikesCubit extends Cubit<JournalLikesState> {
 
   Future<void> likeJournal(String journalId, String userId) async {
     try {
-      emit(JournalLikesLoading());
+      emit(JournalLikesLoading(journalId));
       await _repository.likeJournal(journalId, userId);
-      emit(const JournalLikesSuccess());
+      emit(JournalLikesSuccess(journalId, true));
     } catch (e) {
       emit(JournalLikesError(e.toString()));
     }
@@ -23,9 +23,7 @@ class JournalLikesCubit extends Cubit<JournalLikesState> {
 
   Future<void> unlikeJournal(String journalId, String userId) async {
     try {
-      emit(JournalLikesLoading());
       await _repository.unlikeJournal(journalId, userId);
-      emit(const JournalLikesSuccess());
     } catch (e) {
       emit(JournalLikesError(e.toString()));
     }

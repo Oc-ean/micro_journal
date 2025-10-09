@@ -210,7 +210,6 @@ class PostCard extends StatelessWidget {
 
           const SizedBox(height: 10),
 
-          // Like and Comment Stats
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -243,7 +242,6 @@ class PostCard extends StatelessWidget {
 
           const Divider(height: 20, thickness: 0.6),
 
-          // Action Buttons
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -269,6 +267,8 @@ class PostCard extends StatelessWidget {
     required String journalId,
     List<CommentModel>? comments,
   }) {
+    print('Tapped');
+
     CommentsModalSheet.show(context: context, journalId: journalId);
   }
 }

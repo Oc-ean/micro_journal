@@ -65,10 +65,12 @@ class _HomePageState extends State<HomePage>
         _loadUserFollowing();
 
         return journals
-            .where((journal) =>
-                journal.user != null &&
-                _userFollowing.contains(journal.user!.id) &&
-                journal.isAnonymous != true,)
+            .where(
+              (journal) =>
+                  journal.user != null &&
+                  _userFollowing.contains(journal.user!.id) &&
+                  journal.isAnonymous != true,
+            )
             .toList();
 
       case JournalFilter.mine:
@@ -143,7 +145,7 @@ class _HomePageState extends State<HomePage>
               _filterJournals(allJournals, currentUser?.uid);
 
           final isLoading = state is JournalLoading;
-          final hasJournalledToday = !isLoading && hasJournalToday(allJournals);
+          final hasJournaledToday = !isLoading && hasJournalToday(allJournals);
 
           return RefreshIndicator(
             onRefresh: () async {
@@ -154,13 +156,12 @@ class _HomePageState extends State<HomePage>
               children: [
                 const SizedBox(height: 20),
                 if (!isLoading) ...[
-                  if (hasJournalledToday)
+                  if (hasJournaledToday)
                     const AlreadyJournaledTodayWidget()
                   else
                     const CreateJournalPromptWidget(),
                 ],
                 const SizedBox(height: 30),
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -239,22 +240,18 @@ class _HomePageState extends State<HomePage>
                             final shouldDisableTap =
                                 journal.user?.id == currentUser?.uid;
 
-                            return AbsorbPointer(
-                              absorbing:
-                                  shouldDisableTap || journal.isAnonymous,
-                              child: GestureDetector(
-                                onTap: shouldDisableTap || journal.isAnonymous
-                                    ? null
-                                    : () {
-                                        context.push(
-                                          Routes.follow.path,
-                                          extra: {'userId': journal.user!.id},
-                                        );
-                                      },
-                                child: PostCard(
-                                  journal: journal,
-                                  currentUserId: currentUser!.uid,
-                                ),
+                            return GestureDetector(
+                              onTap: shouldDisableTap || journal.isAnonymous
+                                  ? null
+                                  : () {
+                                      context.push(
+                                        Routes.follow.path,
+                                        extra: {'userId': journal.user!.id},
+                                      );
+                                    },
+                              child: PostCard(
+                                journal: journal,
+                                currentUserId: currentUser!.uid,
                               ),
                             );
                           },
@@ -338,48 +335,46 @@ class _HomePageState extends State<HomePage>
               ),
             ),
 
-            ...JournalFilter.values
-                .map(
-                  (filter) => ListTile(
-                    leading: Icon(
-                      filter.icon,
-                      color: _selectedFilter == filter
-                          ? Theme.of(context).primaryColor
-                          : Colors.grey[600],
-                    ),
-                    title: Text(
-                      filter.label,
-                      style: TextStyle(
-                        fontWeight: _selectedFilter == filter
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                        color: _selectedFilter == filter
-                            ? Theme.of(context).primaryColor
-                            : null,
-                      ),
-                    ),
-                    subtitle: Text(
-                      filter.description,
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 12,
-                      ),
-                    ),
-                    trailing: _selectedFilter == filter
-                        ? Icon(
-                            Icons.check_circle,
-                            color: Theme.of(context).primaryColor,
-                          )
+            ...JournalFilter.values.map(
+              (filter) => ListTile(
+                leading: Icon(
+                  filter.icon,
+                  color: _selectedFilter == filter
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey[600],
+                ),
+                title: Text(
+                  filter.label,
+                  style: TextStyle(
+                    fontWeight: _selectedFilter == filter
+                        ? FontWeight.bold
+                        : FontWeight.normal,
+                    color: _selectedFilter == filter
+                        ? Theme.of(context).primaryColor
                         : null,
-                    onTap: () {
-                      setState(() {
-                        _selectedFilter = filter;
-                      });
-                      Navigator.pop(context);
-                    },
                   ),
-                )
-                ,
+                ),
+                subtitle: Text(
+                  filter.description,
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 12,
+                  ),
+                ),
+                trailing: _selectedFilter == filter
+                    ? Icon(
+                        Icons.check_circle,
+                        color: Theme.of(context).primaryColor,
+                      )
+                    : null,
+                onTap: () {
+                  setState(() {
+                    _selectedFilter = filter;
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+            ),
 
             const SizedBox(height: 20),
           ],

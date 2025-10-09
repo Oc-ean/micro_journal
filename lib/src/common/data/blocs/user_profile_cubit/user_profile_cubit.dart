@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:equatable/equatable.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:micro_journal/src/common/common.dart';
 
@@ -46,6 +47,61 @@ class UserProfileCubit extends Cubit<UserProfileState> {
           emit(UserProfileError(message: error.toString()));
         },
       );
+    } catch (e) {
+      emit(UserProfileError(message: e.toString()));
+    }
+  }
+
+  Future<void> togglePushNotifications(bool enabled) async {
+    final currentUser = this.currentUser;
+    if (currentUser == null) return;
+
+    try {
+      emit(const UserProfileLoading());
+
+      if (enabled) {
+        final settings = await FirebaseMessaging.instance.requestPermission();
+
+        if (settings.authorizationStatus != AuthorizationStatus.authorized) {
+          emit(
+            UserProfileLoaded(
+              user: currentUser.copyWith(
+                enablePushNotifications: false,
+                systemNotificationsEnabled: false,
+              ),
+            ),
+          );
+          return;
+        }
+      }
+
+      await _userRepository.togglePushNotifications(currentUser.id, enabled);
+
+      final updatedUser = currentUser.copyWith(
+        enablePushNotifications: enabled,
+        systemNotificationsEnabled: enabled,
+      );
+
+      emit(UserProfileLoaded(user: updatedUser));
+    } catch (e) {
+      emit(UserProfileError(message: e.toString()));
+    }
+  }
+
+  Future<void> toggleAnonymousSharing(bool isEnabled) async {
+    final currentUser = this.currentUser;
+    if (currentUser == null) return;
+
+    try {
+      emit(UserProfileUpdating(currentUser: currentUser));
+
+      await _userRepository.toggleAnonymousSharing(currentUser.id, isEnabled);
+
+      final updatedUser = currentUser.copyWith(
+        enabledAnonymousSharing: isEnabled,
+      );
+
+      emit(UserProfileLoaded(user: updatedUser));
     } catch (e) {
       emit(UserProfileError(message: e.toString()));
     }
@@ -106,6 +162,33 @@ class UserProfileCubit extends Cubit<UserProfileState> {
       return currentState.currentUser;
     }
     return null;
+  }
+
+  Future<void> checkSystemNotificationStatus() async {
+    final currentUser = this.currentUser;
+    if (currentUser == null) return;
+
+    try {
+      final notificationService = getIt<NotificationService>();
+      final systemEnabled = await notificationService.areNotificationsEnabled();
+
+      if (!systemEnabled && currentUser.enablePushNotifications) {
+        await _userRepository.togglePushNotifications(currentUser.id, false);
+
+        final updatedUser = currentUser.copyWith(
+          enablePushNotifications: false,
+          systemNotificationsEnabled: false,
+        );
+        emit(UserProfileLoaded(user: updatedUser));
+      } else if (systemEnabled != currentUser.systemNotificationsEnabled) {
+        final updatedUser = currentUser.copyWith(
+          systemNotificationsEnabled: systemEnabled,
+        );
+        emit(UserProfileLoaded(user: updatedUser));
+      }
+    } catch (e) {
+      logman.error('Failed to check system notification status: $e');
+    }
   }
 
   bool get isProfileLoaded => state is UserProfileLoaded;

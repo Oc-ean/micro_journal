@@ -1,4 +1,5 @@
 export 'comments.dart';
+export 'feedback.dart';
 export 'journal.dart';
 export 'journal_stats.dart';
 export 'mood.dart';

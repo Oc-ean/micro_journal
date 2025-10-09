@@ -1,6 +1,9 @@
+import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:micro_journal/src/common/common.dart';
 import 'package:micro_journal/src/features/features.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -15,6 +18,16 @@ class _SettingsPageState extends State<SettingsPage> {
   bool anonymousSharing = false;
   bool dataSharing = false;
 
+  late UserProfileCubit _userProfileCubit;
+
+  @override
+  void initState() {
+    super.initState();
+    _userProfileCubit = UserProfileCubit(
+        authRepository: getIt<AuthRepository>(),
+        userRepository: getIt<UserRepository>());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,51 +37,51 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 16),
-            ProfileSectionTile(
-              onEditProfile: _navigateToEditProfile,
-            ),
-            const SizedBox(height: 32),
-            _buildSectionTitle(context, 'Notifications'),
-            NotificationTile(
-              notificationsEnabled: notificationsEnabled,
-              emailNotifications: emailNotifications,
-              onNotificationsChanged: (value) {
-                setState(() {
-                  notificationsEnabled = value;
-                });
-              },
-            ),
-            const SizedBox(height: 24),
-            _buildSectionTitle(context, 'Privacy & Security'),
-            PrivacyTile(
-              onDataPrivacyTap: _navigateToDataPrivacy,
-            ),
-            const SizedBox(height: 24),
-            _buildSectionTitle(context, 'Sharing & Content'),
-            SharingTile(
-              anonymousSharing: anonymousSharing,
-              onAnonymousSharingChanged: (value) {
-                setState(() {
-                  anonymousSharing = value;
-                });
-                _showAnonymousDialog(value);
-              },
-              onSharingOptionsTap: _showSharingOptions,
-            ),
-            const SizedBox(height: 24),
-            _buildSectionTitle(context, 'Support'),
-            SupportTile(
-              onHelpTap: _navigateToHelp,
-              onFeedbackTap: _sendFeedback,
-              onAboutTap: _showAbout,
-              onSignOutTap: _signOut,
-            ),
-            const SizedBox(height: 32),
-          ],
+        child: BlocBuilder<UserProfileCubit, UserProfileState>(
+          bloc: _userProfileCubit,
+          builder: (context, state) {
+            final user =
+                state is UserProfileLoaded ? state.user : UserModel.empty();
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 16),
+                const ProfileSectionTile(),
+                const SizedBox(height: 32),
+                _buildSectionTitle(context, 'Notifications'),
+                Skeletonizer(
+                  enabled: state is UserProfileLoading,
+                  child: NotificationTile(
+                    notificationsEnabled: user.enablePushNotifications,
+                    emailNotifications: emailNotifications,
+                    onNotificationsChanged: (value) {
+                      _userProfileCubit.togglePushNotifications(value);
+                    },
+                  ),
+                ),
+                const SizedBox(height: 24),
+                _buildSectionTitle(context, 'Sharing & Content'),
+                Skeletonizer(
+                  enabled: state is UserProfileLoading,
+                  child: SharingTile(
+                    anonymousSharing: user.enabledAnonymousSharing,
+                    onAnonymousSharingChanged: (value) {
+                      _userProfileCubit.toggleAnonymousSharing(value);
+                    },
+                  ),
+                ),
+                const SizedBox(height: 24),
+                _buildSectionTitle(context, 'Support'),
+                SupportTile(
+                  onHelpTap: _navigateToHelp,
+                  onFeedbackTap: _sendFeedback,
+                  onAboutTap: _showAbout,
+                  onSignOutTap: _signOut,
+                ),
+                const SizedBox(height: 32),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -82,17 +95,6 @@ class _SettingsPageState extends State<SettingsPage> {
         style: context.theme.textTheme.titleMedium?.copyWith(
           fontWeight: FontWeight.w600,
           fontSize: 16,
-        ),
-      ),
-    );
-  }
-
-  void _navigateToEditProfile() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Navigate to Edit Profile',
-          style: TextStyle(color: context.theme.textTheme.bodySmall!.color),
         ),
       ),
     );
@@ -165,7 +167,14 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void _sendFeedback() {
-    context.showSnackBarUsingText('Opening feedback form...');
+    BetterFeedback.of(context).show((feedback) {
+      final cubit = getIt<FeedbackCubit>();
+      cubit.submitFeedback(
+        context,
+        feedback.text,
+        feedback.screenshot,
+      );
+    });
   }
 
   void _showAbout() {

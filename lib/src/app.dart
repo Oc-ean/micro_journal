@@ -1,3 +1,4 @@
+import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:micro_journal/src/common/common.dart';
@@ -10,12 +11,14 @@ class App extends StatelessWidget {
     return BlocBuilder<CurrentAppThemeCubit, CurrentAppTheme>(
       bloc: getIt<CurrentAppThemeCubit>(),
       builder: (context, theme) {
-        return MaterialApp.router(
-          routerConfig: router,
-          title: 'Miro Journal',
-          theme: lightTheme,
-          darkTheme: darkTheme,
-          themeMode: theme.themeMode,
+        return BetterFeedback(
+          child: MaterialApp.router(
+            routerConfig: router,
+            title: 'Miro Journal',
+            theme: lightTheme,
+            darkTheme: darkTheme,
+            themeMode: theme.themeMode,
+          ),
         );
       },
     );
