@@ -5,7 +5,8 @@ import 'package:micro_journal/src/common/common.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
 class CreateJournalPage extends StatefulWidget {
-  const CreateJournalPage({super.key});
+  final String currentUserId;
+  const CreateJournalPage({super.key, required this.currentUserId});
 
   @override
   State<CreateJournalPage> createState() => _CreateJournalPageState();
@@ -24,13 +25,14 @@ class _CreateJournalPageState extends State<CreateJournalPage> {
   String selectedMoodValue = '';
   String selectedMoodEmoji = '';
   List<String> selectedTags = [];
-  bool isAnonymous = true;
+  bool? isAnonymous;
 
   @override
   void initState() {
     super.initState();
     _journalCubit = getIt<JournalCubit>();
     _authRepository = getIt<AuthRepository>();
+    _initializeAnonymousSetting(widget.currentUserId);
   }
 
   void _selectMood(Mood mood) {
@@ -76,6 +78,7 @@ class _CreateJournalPageState extends State<CreateJournalPage> {
         );
         return;
       }
+      final anonymousValue = isAnonymous ?? false;
 
       final journal = JournalModel(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -83,10 +86,10 @@ class _CreateJournalPageState extends State<CreateJournalPage> {
         thoughts: thoughts,
         intention: intention,
         tags: selectedTags,
-        isAnonymous: isAnonymous,
+        isAnonymous: anonymousValue,
         user: UserModel(
           id: currentUser.uid,
-          username: isAnonymous
+          username: anonymousValue
               ? generateAnonymousUsername()
               : currentUser.displayName!,
           email: currentUser.email!,
@@ -102,6 +105,12 @@ class _CreateJournalPageState extends State<CreateJournalPage> {
         ),
       );
     }
+  }
+
+  @override
+  void dispose() {
+    _journalCubit.close();
+    super.dispose();
   }
 
   @override
@@ -298,7 +307,9 @@ class _CreateJournalPageState extends State<CreateJournalPage> {
                   child: Row(
                     children: [
                       Icon(
-                        isAnonymous ? Icons.visibility_off : Icons.visibility,
+                        isAnonymous == true
+                            ? Icons.visibility_off
+                            : Icons.visibility,
                         color: context.theme.primaryColor,
                         size: 24,
                       ),
@@ -308,7 +319,9 @@ class _CreateJournalPageState extends State<CreateJournalPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              isAnonymous ? 'Anonymous Mode' : 'Public Mode',
+                              isAnonymous == true
+                                  ? 'Anonymous Mode'
+                                  : 'Public Mode',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 16,
@@ -317,7 +330,7 @@ class _CreateJournalPageState extends State<CreateJournalPage> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              isAnonymous
+                              isAnonymous == true
                                   ? 'Your identity will be encrypted and hidden'
                                   : 'Your profile will be visible to others',
                               style: TextStyle(
@@ -331,7 +344,7 @@ class _CreateJournalPageState extends State<CreateJournalPage> {
                         ),
                       ),
                       Switch(
-                        value: isAnonymous,
+                        value: isAnonymous ?? false,
                         onChanged: _toggleAnonymous,
                         activeColor: context.theme.primaryColor,
                       ),
@@ -339,7 +352,7 @@ class _CreateJournalPageState extends State<CreateJournalPage> {
                   ),
                 ),
                 const SizedBox(height: 30),
-                if (isAnonymous)
+                if (isAnonymous == true)
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -377,5 +390,13 @@ class _CreateJournalPageState extends State<CreateJournalPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _initializeAnonymousSetting(String userId) async {
+    final user = await getIt<UserRepository>().getUserData(userId);
+    final isAnonymousSharingEnabled = user?.enabledAnonymousSharing;
+    setState(() {
+      isAnonymous = isAnonymousSharingEnabled;
+    });
   }
 }

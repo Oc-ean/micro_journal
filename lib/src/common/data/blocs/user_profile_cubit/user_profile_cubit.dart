@@ -57,8 +57,6 @@ class UserProfileCubit extends Cubit<UserProfileState> {
     if (currentUser == null) return;
 
     try {
-      emit(const UserProfileLoading());
-
       if (enabled) {
         final settings = await FirebaseMessaging.instance.requestPermission();
 
@@ -93,8 +91,6 @@ class UserProfileCubit extends Cubit<UserProfileState> {
     if (currentUser == null) return;
 
     try {
-      emit(UserProfileUpdating(currentUser: currentUser));
-
       await _userRepository.toggleAnonymousSharing(currentUser.id, isEnabled);
 
       final updatedUser = currentUser.copyWith(
