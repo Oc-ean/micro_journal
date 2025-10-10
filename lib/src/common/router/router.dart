@@ -40,7 +40,13 @@ final router = GoRouter(
     GoRoute(
       path: Routes.create.path,
       name: Routes.create.name,
-      builder: (context, state) => const CreateJournalPage(),
+      builder: (context, state) {
+        final extra = state.extra as Map<dynamic, dynamic>? ?? {};
+        final currentUserId = extra['currentUserId'] as String? ?? '';
+        return CreateJournalPage(
+          currentUserId: currentUserId,
+        );
+      },
     ),
     GoRoute(
       path: Routes.notification.path,

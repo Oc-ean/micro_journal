@@ -38,7 +38,9 @@ class CreateJournalPromptWidget extends StatelessWidget {
             height: 45,
             width: 200,
             text: 'Start writing',
-            onTap: () => context.push(Routes.create.path),
+            onTap: () => context.push(Routes.create.path, extra: {
+              'currentUserId': getIt<AuthRepository>().currentUser!.uid
+            }),
           ),
           const SizedBox(height: 10),
         ],

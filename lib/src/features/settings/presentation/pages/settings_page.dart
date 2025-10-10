@@ -1,6 +1,7 @@
 import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:micro_journal/src/common/common.dart';
 import 'package:micro_journal/src/features/features.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -49,26 +50,20 @@ class _SettingsPageState extends State<SettingsPage> {
                 const ProfileSectionTile(),
                 const SizedBox(height: 32),
                 _buildSectionTitle(context, 'Notifications'),
-                Skeletonizer(
-                  enabled: state is UserProfileLoading,
-                  child: NotificationTile(
-                    notificationsEnabled: user.enablePushNotifications,
-                    emailNotifications: emailNotifications,
-                    onNotificationsChanged: (value) {
-                      _userProfileCubit.togglePushNotifications(value);
-                    },
-                  ),
+                NotificationTile(
+                  notificationsEnabled: user.enablePushNotifications,
+                  emailNotifications: emailNotifications,
+                  onNotificationsChanged: (value) {
+                    _userProfileCubit.togglePushNotifications(value);
+                  },
                 ),
                 const SizedBox(height: 24),
                 _buildSectionTitle(context, 'Sharing & Content'),
-                Skeletonizer(
-                  enabled: state is UserProfileLoading,
-                  child: SharingTile(
-                    anonymousSharing: user.enabledAnonymousSharing,
-                    onAnonymousSharingChanged: (value) {
-                      _userProfileCubit.toggleAnonymousSharing(value);
-                    },
-                  ),
+                SharingTile(
+                  anonymousSharing: user.enabledAnonymousSharing,
+                  onAnonymousSharingChanged: (value) {
+                    _userProfileCubit.toggleAnonymousSharing(value);
+                  },
                 ),
                 const SizedBox(height: 24),
                 _buildSectionTitle(context, 'Support'),
@@ -217,6 +212,8 @@ class _SettingsPageState extends State<SettingsPage> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
+              getIt<AuthRepository>().signOut();
+              context.pushReplacement(Routes.login.path);
               context.showSnackBarUsingText('Signed out successfully');
             },
             child: const Text('Sign Out'),
