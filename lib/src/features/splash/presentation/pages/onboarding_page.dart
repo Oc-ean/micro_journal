@@ -40,13 +40,6 @@ class _OnboardingPageState extends State<OnboardingPage>
           'Anonymous community support\n\nChoose to share your entries anonymously. Find inspiration from others on similar journeys.',
       buttonText: 'Sounds great',
     ),
-    const OnboardingData(
-      emoji: '🔒',
-      title: 'Your Privacy First',
-      subtitle:
-          'Safe, secure, and private\n\nYour personal entries stay private. You control what to share. Your data belongs to you, always.',
-      buttonText: 'Get started',
-    ),
   ];
 
   @override

@@ -211,9 +211,10 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
               getIt<AuthRepository>().signOut();
               context.pushReplacement(Routes.login.path);
+              Navigator.pop(context);
+
               context.showSnackBarUsingText('Signed out successfully');
             },
             child: const Text('Sign Out'),
