@@ -1,4 +1,5 @@
 # Micro Journal
+Micro Journal is an online social journaling app that allows users to share personal journal entries with a community. The app includes an optional anonymity feature, giving users the freedom to express themselves openly or privately. Users can interact with each other's entries through comments, creating a space for meaningful engagement. Each user is limited to one journal entry per day, but they can comment freely and unlimitedly on other users' entries. Whether writing publicly or anonymously, Micro Journal fosters a thoughtful, supportive environment for sharing daily thoughts, reflections, or experiences.
 
 ## 🧠 Micro Journal – Functional Features List
 
